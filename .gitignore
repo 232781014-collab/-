@@ -1,0 +1,5 @@
+.DS_Store
+.venv-xhs/
+__pycache__/
+*.pyc
+integrations/XhsSkills/skills/xhs-apis/scripts/node_modules/
