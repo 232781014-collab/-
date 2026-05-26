@@ -1,11 +1,17 @@
-﻿const http=require('http'),https=require('https'),url=require('url');
+﻿const fs=require('fs'),path=require('path'),http=require('http'),https=require('https'),url=require('url');
 const {execFile}=require('child_process');
 const PORT=3001;
-const TEXT_KEY='sk-k78LsBhpyU4ktpQwpTAFvieOrjaRtgbAKk83Po7KtPnbyQp2';
-const IMAGE_KEY='sk-3MiqeOX2jndEeVNG8PO6KmHEOagoEMt5OXNNVlKssuKQwdtQ';
-const TEXT_HOST='bobdong.cn',TEXT_PATH='/v1';
-const IMAGE_HOST='bobdong.cn',IMAGE_PATH='/v1/images/generations',IMAGE_EDIT_PATH='/v1/images/edits';
-const TEXT_MODEL='gpt-5.4',IMAGE_MODEL='gpt-image-2';
+loadEnvFile(path.join(__dirname,'.env'));
+loadEnvFile(path.join(__dirname,'.env.local'));
+const BOB_HOST=process.env.BOB_HOST||'bobdong.cn';
+const BOB_PATH=process.env.BOB_PATH||'/v1';
+const BOB_API_KEY=process.env.BOB_API_KEY||'';
+const TEXT_KEY=process.env.BOB_TEXT_KEY||BOB_API_KEY;
+const IMAGE_KEY=process.env.BOB_IMAGE_KEY||BOB_API_KEY;
+const VIDEO_KEY=process.env.BOB_VIDEO_KEY||BOB_API_KEY;
+const TEXT_HOST=BOB_HOST,TEXT_PATH=BOB_PATH;
+const IMAGE_HOST=BOB_HOST,IMAGE_PATH=`${BOB_PATH}/images/generations`,IMAGE_EDIT_PATH=`${BOB_PATH}/images/edits`;
+const TEXT_MODEL='gpt-5.4',IMAGE_MODEL='gpt-image-2',VIDEO_MODEL=process.env.BOB_VIDEO_MODEL||'seedance-2.0-720p';
 const NOTERX_HOST='noterx.muran.tech',NOTERX_API_PATH='/api';
 const XHS_ROOT=`${__dirname}/integrations/XhsSkills`;
 const XHS_SCRIPT_DIR=`${XHS_ROOT}/skills/xhs-apis/scripts`;
@@ -16,6 +22,27 @@ const DEFAULT_HEADERS={
   'Accept-Language':'zh-CN,zh;q=0.9,en;q=0.8',
   'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
 };
+function loadEnvFile(filePath){
+  if(!fs.existsSync(filePath))return;
+  const lines=fs.readFileSync(filePath,'utf8').split(/\r?\n/);
+  for(const line of lines){
+    const trimmed=line.trim();
+    if(!trimmed||trimmed.startsWith('#'))continue;
+    const match=trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+    if(!match)continue;
+    const [,name,rawValue]=match;
+    if(process.env[name])continue;
+    const value=rawValue.replace(/^['"]|['"]$/g,'');
+    process.env[name]=value;
+  }
+}
+function ensureApiKey(key,label){
+  if(key)return;
+  throw new Error(`${label} 未配置，请在环境变量或 .env.local 中设置`);
+}
+function parseJsonSafe(raw){
+  try{return JSON.parse(raw);}catch{return null;}
+}
 function execFileAsync(file,args=[],opts={}){
   return new Promise((resolve,reject)=>{
     execFile(file,args,{maxBuffer:8*1024*1024,...opts},(error,stdout,stderr)=>{
@@ -29,7 +56,7 @@ function execFileAsync(file,args=[],opts={}){
   });
 }
 function xhsInstalled(){
-  return require('fs').existsSync(XHS_TOOL)&&require('fs').existsSync(XHS_PYTHON);
+  return fs.existsSync(XHS_TOOL)&&fs.existsSync(XHS_PYTHON);
 }
 async function runXhsTool(args=[]){
   if(!xhsInstalled())throw new Error('XhsSkills 尚未安装完成');
@@ -225,9 +252,30 @@ function parseApiPayload(raw){
   }
   return last;
 }
-function httpsPost(host,path,body,key,opts={}){return new Promise((resolve,reject)=>{const opt={hostname:host,port:443,path,method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'Authorization':`Bearer ${key}`}};const req=https.request(opt,res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{const p=parseApiPayload(d);if(res.statusCode>=400)reject(new Error(`API ${res.statusCode}: ${p?.error?.message||d.slice(0,200)}`));else resolve(p);}catch(e){reject(new Error('解析失败:'+d.slice(0,200)));}});});req.on('error',reject);req.setTimeout(opts.timeoutMs||90000,()=>{req.destroy();reject(new Error('超时'));});req.write(body);req.end();});}
-function httpsMultipartPost(host,path,parts,key,opts={}){return new Promise((resolve,reject)=>{const boundary=`----contentengine${Date.now().toString(16)}`;const chunks=[];for(const part of parts){chunks.push(Buffer.from(`--${boundary}\r\n`));if(part.filename){chunks.push(Buffer.from(`Content-Disposition: form-data; name="${part.name}"; filename="${part.filename}"\r\nContent-Type: ${part.contentType||'application/octet-stream'}\r\n\r\n`));chunks.push(Buffer.isBuffer(part.value)?part.value:Buffer.from(part.value));chunks.push(Buffer.from('\r\n'));}else{chunks.push(Buffer.from(`Content-Disposition: form-data; name="${part.name}"\r\n\r\n${part.value}\r\n`));}}chunks.push(Buffer.from(`--${boundary}--\r\n`));const body=Buffer.concat(chunks);const opt={hostname:host,port:443,path,method:'POST',headers:{'Content-Type':`multipart/form-data; boundary=${boundary}`,'Content-Length':body.length,'Authorization':`Bearer ${key}`}};const req=https.request(opt,res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{const p=parseApiPayload(d);if(res.statusCode>=400)reject(new Error(`API ${res.statusCode}: ${p?.error?.message||d.slice(0,200)}`));else resolve(p);}catch(e){reject(new Error('解析失败:'+d.slice(0,200)));}});});req.on('error',reject);req.setTimeout(opts.timeoutMs||90000,()=>{req.destroy();reject(new Error('超时'));});req.write(body);req.end();});}
-function textCompletion(messages,opts={}){return httpsPost(TEXT_HOST,`${TEXT_PATH}/responses`,JSON.stringify({model:opts.model||TEXT_MODEL,input:buildResponsesInput(messages),max_output_tokens:opts.maxTokens||2000,temperature:0.7,text:{format:{type:'text'},verbosity:'low'}}),TEXT_KEY,{timeoutMs:opts.timeoutMs});}
+function buildVideoPrompt(payload={}){
+  const parts=[
+    `为中文电商短视频生成一条可直接投放的短视频。`,
+    payload.platform?`目标平台:${payload.platform}`:'',
+    payload.productName?`产品:${payload.productName}`:'',
+    payload.productFeature?`核心卖点:${payload.productFeature}`:'',
+    payload.tone?`语气:${payload.tone}`:'',
+    payload.angle?`创作角度:${payload.angle}`:'',
+    payload.script?`参考脚本:\n${payload.script}`:'',
+    payload.prompt?`补充要求:${payload.prompt}`:'',
+    '要求:竖屏、真人口播/展示感、节奏清晰、适合带货转化。',
+  ].filter(Boolean);
+  return parts.join('\n');
+}
+function normalizeVideoResponse(data){
+  const url=data?.url||data?.video_url||data?.download_url||data?.content_url||data?.data?.url||data?.data?.video_url||'';
+  const taskId=data?.id||data?.task_id||data?.data?.id||data?.data?.task_id||'';
+  const status=data?.status||data?.data?.status||data?.state||'submitted';
+  return {taskId,status,url,raw:data};
+}
+function httpsPost(host,path,body,key,opts={}){return new Promise((resolve,reject)=>{const headers={'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)};if(key)headers.Authorization=`Bearer ${key}`;const opt={hostname:host,port:443,path,method:'POST',headers};const req=https.request(opt,res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{const p=parseApiPayload(d);if(res.statusCode>=400)reject(new Error(`API ${res.statusCode}: ${p?.error?.message||d.slice(0,200)}`));else resolve(p);}catch(e){reject(new Error('解析失败:'+d.slice(0,200)));}});});req.on('error',reject);req.setTimeout(opts.timeoutMs||90000,()=>{req.destroy();reject(new Error('超时'));});req.write(body);req.end();});}
+function httpsMultipartPost(host,path,parts,key,opts={}){return new Promise((resolve,reject)=>{const boundary=`----contentengine${Date.now().toString(16)}`;const chunks=[];for(const part of parts){chunks.push(Buffer.from(`--${boundary}\r\n`));if(part.filename){chunks.push(Buffer.from(`Content-Disposition: form-data; name="${part.name}"; filename="${part.filename}"\r\nContent-Type: ${part.contentType||'application/octet-stream'}\r\n\r\n`));chunks.push(Buffer.isBuffer(part.value)?part.value:Buffer.from(part.value));chunks.push(Buffer.from('\r\n'));}else{chunks.push(Buffer.from(`Content-Disposition: form-data; name="${part.name}"\r\n\r\n${part.value}\r\n`));}}chunks.push(Buffer.from(`--${boundary}--\r\n`));const body=Buffer.concat(chunks);const headers={'Content-Type':`multipart/form-data; boundary=${boundary}`,'Content-Length':body.length};if(key)headers.Authorization=`Bearer ${key}`;const opt={hostname:host,port:443,path,method:'POST',headers};const req=https.request(opt,res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{try{const p=parseApiPayload(d);if(res.statusCode>=400)reject(new Error(`API ${res.statusCode}: ${p?.error?.message||d.slice(0,200)}`));else resolve(p);}catch(e){reject(new Error('解析失败:'+d.slice(0,200)));}});});req.on('error',reject);req.setTimeout(opts.timeoutMs||90000,()=>{req.destroy();reject(new Error('超时'));});req.write(body);req.end();});}
+function httpsGetJson(host,path,key,opts={}){return new Promise((resolve,reject)=>{const headers={Accept:'application/json'};if(key)headers.Authorization=`Bearer ${key}`;const req=https.request({hostname:host,port:443,path,method:'GET',headers},res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>{const parsed=parseJsonSafe(d);if((res.statusCode||0)>=400){reject(new Error(`API ${res.statusCode}: ${parsed?.error?.message||parsed?.message||d.slice(0,200)}`));return;}if(!parsed){reject(new Error('解析失败:'+d.slice(0,200)));return;}resolve(parsed);});});req.on('error',reject);req.setTimeout(opts.timeoutMs||90000,()=>{req.destroy(new Error('超时'));});req.end();});}
+function textCompletion(messages,opts={}){ensureApiKey(TEXT_KEY,'BOB_TEXT_KEY / BOB_API_KEY');return httpsPost(TEXT_HOST,`${TEXT_PATH}/responses`,JSON.stringify({model:opts.model||TEXT_MODEL,input:buildResponsesInput(messages),max_output_tokens:opts.maxTokens||2000,temperature:0.7,text:{format:{type:'text'},verbosity:'low'}}),TEXT_KEY,{timeoutMs:opts.timeoutMs});}
 async function textCompletionWithRetry(messages,opts={}){
   let lastErr;
   const attempts=opts.retries||1;
@@ -244,6 +292,7 @@ async function textCompletionWithRetry(messages,opts={}){
   throw lastErr;
 }
 async function generateImage(prompt,opts={}){
+  ensureApiKey(IMAGE_KEY,'BOB_IMAGE_KEY / BOB_API_KEY');
   const sizeMap={'1:1':'1024x1024','3:4':'1024x1792','9:16':'1024x1792','4:3':'1792x1024','16:9':'1792x1024'};
   const body=JSON.stringify({model:IMAGE_MODEL,prompt,n:1,size:sizeMap[opts.ratio]||'1024x1024',response_format:'b64_json'});
   let lastErr;
@@ -274,6 +323,7 @@ function buildImageParts(imageBase64List=[]){
   }).filter(Boolean);
 }
 async function editImage(prompt,opts={}){
+  ensureApiKey(IMAGE_KEY,'BOB_IMAGE_KEY / BOB_API_KEY');
   const sizeMap={'1:1':'1024x1024','3:4':'1024x1792','9:16':'1024x1792','4:3':'1792x1024','16:9':'1792x1024'};
   const images=buildImageParts(opts.imageBase64List?.length?opts.imageBase64List:[opts.imageBase64]);
   if(!images.length)throw new Error('参考图解析失败');
@@ -295,6 +345,23 @@ async function editImage(prompt,opts={}){
     }
   }
   throw lastErr;
+}
+async function generateVideo(payload={}){
+  ensureApiKey(VIDEO_KEY,'BOB_VIDEO_KEY / BOB_API_KEY');
+  const ratioMap={'1:1':'1024x1024','3:4':'1024x1365','9:16':'720x1280','4:3':'1280x960','16:9':'1280x720'};
+  const body={
+    model:payload.model||VIDEO_MODEL,
+    prompt:buildVideoPrompt(payload),
+    size:ratioMap[payload.ratio]||'720x1280',
+  };
+  if(payload.duration)body.duration=payload.duration;
+  if(payload.image)body.image=payload.image;
+  return normalizeVideoResponse(await httpsPost(TEXT_HOST,`${TEXT_PATH}/videos`,JSON.stringify(body),VIDEO_KEY,{timeoutMs:120000}));
+}
+async function getVideoTask(taskId){
+  ensureApiKey(VIDEO_KEY,'BOB_VIDEO_KEY / BOB_API_KEY');
+  if(!taskId)throw new Error('缺少 taskId');
+  return normalizeVideoResponse(await httpsGetJson(TEXT_HOST,`${TEXT_PATH}/videos/${encodeURIComponent(taskId)}`,VIDEO_KEY,{timeoutMs:60000}));
 }
 function extractText(r){
   if(r?.output_text)return r.output_text;
@@ -376,6 +443,15 @@ const routes={
 },
 'GET /api/xhs/status':async()=>({ok:true,installed:xhsInstalled(),root:XHS_ROOT,python:XHS_PYTHON,tool:XHS_TOOL}),
 'GET /api/xhs/list':async()=>{const data=await runXhsTool(['list']);return{ok:true,...data};},
+'GET /api/video/status':async()=>({ok:true,configured:Boolean(VIDEO_KEY),provider:'bobdong-openai-compatible',model:VIDEO_MODEL,message:VIDEO_KEY?`视频已接通，可用模型：${VIDEO_MODEL}`:'未配置视频 Key'}),
+'POST /api/generate-video':async(payload)=>{
+  try{return{ok:true,data:await generateVideo(payload)};}
+  catch(err){return{ok:false,error:err.message};}
+},
+'POST /api/video/task':async({taskId})=>{
+  try{return{ok:true,data:await getVideoTask(taskId)};}
+  catch(err){return{ok:false,error:err.message};}
+},
 'POST /api/xhs/call':async({namespace,method,params})=>{
   if(!namespace||!method)return{ok:false,error:'缺少 namespace 或 method'};
   const payload=JSON.stringify(params&&typeof params==='object'?params:{});
@@ -386,5 +462,62 @@ const routes={
 'POST /api/generate-image':async({tool,params={},imageBase64,imageBase64List,ratio})=>{const pm={model:`Use the uploaded garment image as the strict reference. Keep the clothing design, fabric texture, print, logo, cut, color, and silhouette exactly consistent with the reference image. Only place the garment naturally on a ${params.modelType||'clean Asian'} fashion model in a ${params.scene||'studio'} scene with ${params.pose||'front standing'} pose. Do not redesign the clothing.`,scene:`Use the uploaded product image as the strict reference. Keep the product, color, pattern, logo, and shape exactly the same. Only place it into a ${params.package||'lifestyle'} scene with ${params.light||'natural daylight'} lighting. Do not alter the product itself.`,bg:`Use the uploaded image as the strict reference. Preserve the subject, clothing, body shape, pose, colors, logos, and all visible details exactly. Only replace the background with ${params.bgType||'solid'} style in ${params.bgColor||'warm off-white'} tones. No other changes.`,style:`Use the uploaded image as the strict reference. Preserve the same person, garment, pose, composition, shape, print, logo, and colors. Only change the visual style toward ${params.targetStyle||'French vintage'}. Keep the content itself the same.`,enhance:`Use the uploaded image as the strict reference. Keep all content exactly the same. Only apply ${params.mode||'commercial retouch'} enhancement for clarity, lighting, and texture cleanup. No redesign, no composition changes.`,text:`Minimal ${params.designType||'T-shirt print'} design with the text "${params.textContent||'SPRING BLOOM'}", ${params.fontStyle||'handwritten'} style, ${params.colorScheme||'morandi colors'}, clean background, centered composition`,color:`Use the uploaded image as the strict reference. Keep garment shape, folds, fabric texture, composition, and logos exactly the same. Only create color variations of the product.`,expand:`Use the uploaded image as the strict reference. Keep the original image unchanged in the center. Only outpaint around it to fit ${ratio||'9:16'} with natural matching surroundings.`,batch:`Use all uploaded product images as strict references. Keep each product unchanged and generate consistent variants in one unified visual direction.`,merge:`Use all uploaded images as strict references. Merge them while preserving the clothing details, product identity, colors, logos, and structure from the references. Mode: ${params.mergeMode||'garment on model'}.`};const prompt=pm[tool]||`Use the uploaded image as the strict reference and keep the subject unchanged while creating a polished commercial result at ratio ${ratio||'1:1'}.`;try{const refs=(imageBase64List&&imageBase64List.length?imageBase64List:(imageBase64?[imageBase64]:[]));const useReference=refs.length>0&&tool!=='text';const res=useReference?await editImage(prompt,{ratio,imageBase64List:refs}):await generateImage(prompt,{ratio});const img=extractImage(res);if(img)return{ok:true,imageData:img};return{ok:false,error:'未能提取图片',debug:JSON.stringify(res).slice(0,300)};}catch(err){return{ok:false,error:err.message};}},
 'POST /api/chat':async({messages,model,maxTokens})=>{const res=await textCompletion(messages,{model,maxTokens});const text=extractText(res);if(!text)return{ok:false,error:'中转站已连通，但模型未返回可用文本内容',debug:JSON.stringify(res).slice(0,300)};return{ok:true,text};}
 };
-const server=http.createServer(async(req,res)=>{res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Methods','GET,POST,OPTIONS');res.setHeader('Access-Control-Allow-Headers','Content-Type');if(req.method==='OPTIONS'){res.writeHead(204);res.end();return;}const{pathname}=url.parse(req.url);const rk=`${req.method} ${pathname}`;if(rk==='GET /health'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:true,imageModel:IMAGE_MODEL,textModel:TEXT_MODEL,xhsInstalled:xhsInstalled()}));return;}const handler=routes[rk];if(!handler){res.writeHead(404,{'Content-Type':'application/json'});res.end(JSON.stringify({error:`路由不存在:${rk}`}));return;}if(req.method==='GET'){try{const t=Date.now();console.log(`→ ${rk}`);const result=await handler({});console.log(`← ${rk} ${Date.now()-t}ms ${result.ok?'✓':'✗ '+result.error}`);res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));}catch(err){console.error(`✗ ${rk}:`,err.message);res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:err.message}));}return;}let body='';req.on('data',c=>body+=c);req.on('end',async()=>{try{const p=body?JSON.parse(body):{};const t=Date.now();console.log(`→ ${rk}`);const result=await handler(p);console.log(`← ${rk} ${Date.now()-t}ms ${result.ok?'✓':'✗ '+result.error}`);res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));}catch(err){console.error(`✗ ${rk}:`,err.message);res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:err.message}));}});});
-server.listen(PORT,()=>{console.log(`\n🚀 内容引擎后端\n   地址：http://localhost:${PORT}\n   文字：${TEXT_MODEL} (${TEXT_HOST})\n   图片：${IMAGE_MODEL} (${IMAGE_HOST}) 3次重试\n`);});
+function setCorsHeaders(res){
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type');
+}
+function sendJson(res,statusCode,payload){
+  res.writeHead(statusCode,{'Content-Type':'application/json'});
+  res.end(JSON.stringify(payload));
+}
+async function readJsonBody(req){
+  if(req.body&&typeof req.body==='object')return req.body;
+  return new Promise((resolve,reject)=>{
+    let body='';
+    req.on('data',chunk=>body+=chunk);
+    req.on('end',()=>{
+      try{resolve(body?JSON.parse(body):{});}
+      catch(err){reject(err);}
+    });
+    req.on('error',reject);
+  });
+}
+async function requestHandler(req,res){
+  setCorsHeaders(res);
+  if(req.method==='OPTIONS'){
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+  const parsedUrl=req.url instanceof URL?req.url:url.parse(req.url||'',true);
+  const pathname=parsedUrl.pathname||'/';
+  const rk=`${req.method} ${pathname}`;
+  if(rk==='GET /health'){
+    sendJson(res,200,{ok:true,imageModel:IMAGE_MODEL,textModel:TEXT_MODEL,xhsInstalled:xhsInstalled(),videoConfigured:Boolean(VIDEO_KEY)});
+    return;
+  }
+  const handler=routes[rk];
+  if(!handler){
+    sendJson(res,404,{error:`路由不存在:${rk}`});
+    return;
+  }
+  try{
+    const payload=req.method==='GET'?{}:await readJsonBody(req);
+    const t=Date.now();
+    console.log(`→ ${rk}`);
+    const result=await handler(payload);
+    console.log(`← ${rk} ${Date.now()-t}ms ${result.ok?'✓':'✗ '+result.error}`);
+    sendJson(res,200,result);
+  }catch(err){
+    console.error(`✗ ${rk}:`,err.message);
+    sendJson(res,500,{ok:false,error:err.message});
+  }
+}
+function startServer(){
+  const server=http.createServer(requestHandler);
+  server.listen(PORT,()=>{console.log(`\n🚀 内容引擎后端\n   地址：http://localhost:${PORT}\n   文字：${TEXT_MODEL} (${TEXT_HOST})\n   图片：${IMAGE_MODEL} (${IMAGE_HOST}) 3次重试\n   视频：${VIDEO_KEY?`已接通 (${VIDEO_MODEL})`:'未配置'}\n`);});
+  return server;
+}
+module.exports={requestHandler,startServer};
+if(require.main===module)startServer();

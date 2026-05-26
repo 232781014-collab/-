@@ -17,6 +17,7 @@
   --accent:#151515;--accent-bg:#F0EFEC;--accent-border:#CFC8BE;
   --success:#156C54;--success-bg:#E7F3EF;--success-border:#7AB39F;
   --warning-bg:#FBF0E6;--warning-text:#7F4317;--warning-border:#E7A061;
+  --mascot-sheet:url("./reference_mascot_sheet.png");
   --r-md:8px;--r-lg:12px;
   --t-fast:120ms;--t-base:200ms;
   --shadow-sm:0 4px 14px rgba(17,17,17,0.05),0 1px 2px rgba(17,17,17,0.04);
@@ -25,8 +26,8 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font-sans);color:var(--text);background:
 radial-gradient(circle at top right, rgba(179,19,27,.08), transparent 22%),
-linear-gradient(180deg,#F7F4EF 0%,#F4F1EB 100%);min-height:100vh;font-size:14px;}
-.container{max-width:1240px;margin:0 auto;background:rgba(255,255,255,.92);min-height:100vh;box-shadow:0 0 0 1px rgba(17,17,17,0.04),0 24px 70px rgba(17,17,17,0.08);backdrop-filter:blur(8px);}
+linear-gradient(180deg,#F7F4EF 0%,#F4F1EB 100%);min-height:100vh;font-size:14px;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.container{max-width:1240px;margin:0 auto;background:rgba(255,255,255,.92);min-height:100vh;box-shadow:0 0 0 1px rgba(17,17,17,0.04),0 24px 70px rgba(17,17,17,0.08);backdrop-filter:blur(8px);overflow-x:clip;}
 
 /* ────────── 顶部导航 ────────── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:0.5px solid rgba(17,17,17,.08);background:rgba(255,255,255,.78);backdrop-filter:blur(10px);position:sticky;top:0;z-index:20;}
@@ -67,7 +68,7 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 .subtitle{font-size:12px;color:var(--text-2);margin-bottom:18px;line-height:1.6;}
 .section{margin-bottom:18px;}
 .section-title{font-size:11px;color:var(--text-2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-weight:500;}
-.btn{font-size:13px;padding:8px 14px;border:0.5px solid var(--b-3);background:transparent;border-radius:var(--r-md);cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:all .12s;}
+.btn{font-size:13px;padding:8px 14px;border:0.5px solid var(--b-3);background:transparent;border-radius:var(--r-md);cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:all .12s;min-height:40px;touch-action:manipulation;}
 .btn:hover{background:var(--bg-2);}
 .btn.pri{background:var(--primary);color:#fff;border-color:var(--primary);}
 .btn.pri:hover{opacity:.92;}
@@ -163,7 +164,7 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 .engine-tag{font-size:9px;padding:1px 6px;border-radius:10px;background:var(--accent-bg);color:#3C3489;font-weight:500;}
 .engine-desc{font-size:11px;color:var(--text-2);line-height:1.4;}
 
-.gen-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .12s;margin-top:8px;}
+.gen-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .12s;margin-top:8px;min-height:48px;touch-action:manipulation;}
 .gen-btn:hover{opacity:.92;}
 .gen-btn:disabled{opacity:.4;cursor:not-allowed;}
 .gen-btn i{font-size:18px;}
@@ -175,6 +176,207 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .progress-text{font-size:13px;color:var(--text);margin-bottom:4px;}
 .progress-sub{font-size:11px;color:var(--text-3);}
+.pixel-loader{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.pixel-loader .progress-text{margin-bottom:0;}
+.mascot-loader{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+.mascot-stage{
+  position:relative;
+  width:250px;
+  height:174px;
+  margin:0 auto 2px;
+  image-rendering:pixelated;
+}
+.mascot-stage::after{
+  content:'';
+  position:absolute;
+  left:42px;
+  right:42px;
+  bottom:18px;
+  height:24px;
+  background:radial-gradient(circle, rgba(0,0,0,.14), transparent 70%);
+  filter:blur(7px);
+}
+.mascot-speech{
+  position:absolute;
+  top:6px;
+  right:4px;
+  padding:8px 12px;
+  border-radius:14px;
+  background:#171717;
+  color:#fff;
+  font-size:11px;
+  white-space:nowrap;
+  z-index:2;
+  animation:bubbleFloat 2s ease-in-out infinite;
+}
+.mascot-speech::after{
+  content:'';
+  position:absolute;
+  left:14px;
+  bottom:-5px;
+  border:6px solid transparent;
+  border-top-color:#171717;
+  border-bottom:0;
+}
+.mascot-spark{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#ffd35c;
+  box-shadow:8px 8px 0 #ffd35c,-6px 14px 0 #fff1bf;
+  animation:spark 1s steps(2,end) infinite;
+  z-index:1;
+}
+.mascot-spark.s1{left:36px;top:38px;}
+.mascot-spark.s2{right:42px;top:58px;animation-delay:.35s;}
+.mascot-main-wrap{
+  position:absolute;
+  inset:28px 0 0;
+  display:grid;
+  place-items:center;
+}
+.mascot-sprite-box{
+  width:136px;
+  height:136px;
+  position:relative;
+  image-rendering:pixelated;
+  transform:scale(1.68);
+  transform-origin:center bottom;
+}
+.mascot-sprite{
+  width:100%;
+  height:100%;
+  background-image:var(--mascot-sheet);
+  background-repeat:no-repeat;
+  background-size:300% 200%;
+  image-rendering:pixelated;
+  transform-origin:center bottom;
+  filter:contrast(1.08) saturate(1.04) drop-shadow(0 8px 10px rgba(0,0,0,.08));
+}
+.pose-main{background-position:0% 0%;}
+.pose-glasses{background-position:50% 0%;}
+.pose-sit{background-position:100% 0%;}
+.pose-wave{background-position:0% 100%;}
+.pose-stick{background-position:50% 100%;}
+.pose-headphone{background-position:100% 100%;}
+.typing{animation:typingMove .48s steps(2,end) infinite;}
+.pointing{animation:pointMove .88s steps(2,end) infinite;}
+.sitting{animation:sitBounce 1.3s ease-in-out infinite;}
+.waving{animation:waveMove .92s steps(2,end) infinite;}
+.teaching{animation:teachMove .92s steps(2,end) infinite;}
+.dancing{animation:danceMove .86s steps(2,end) infinite;}
+.arg-left{animation:argLeft .72s steps(2,end) infinite;}
+.arg-right{animation:argRight .72s steps(2,end) infinite;}
+.judge{animation:judgeMove 1.1s steps(2,end) infinite;}
+.mascot-prop,.mascot-question,.mascot-chart,.mascot-gavel{position:absolute;pointer-events:none;}
+.mascot-prop.lines{
+  right:-8px;
+  top:30px;
+  width:26px;
+  height:18px;
+  opacity:.85;
+  animation:lineShake .72s steps(2,end) infinite;
+}
+.mascot-prop.lines::before,.mascot-prop.lines::after{
+  content:'';
+  position:absolute;
+  background:#ee8d58;
+  border-radius:2px;
+}
+.mascot-prop.lines::before{left:0;top:0;width:5px;height:16px;box-shadow:8px -1px 0 #ee8d58,16px 2px 0 #ee8d58;}
+.mascot-prop.lines::after{left:3px;bottom:0;width:14px;height:4px;}
+.mascot-question{
+  left:-8px;
+  top:26px;
+  font-size:24px;
+  font-weight:700;
+  color:#855a14;
+  animation:popFloat 1.2s ease-in-out infinite;
+}
+.mascot-chart{
+  right:-2px;
+  top:46px;
+  width:28px;
+  height:22px;
+  border-left:4px solid #2d2a25;
+  border-bottom:4px solid #2d2a25;
+  background:linear-gradient(to top,#83d2b1 0 36%,transparent 36% 100%);
+  animation:chartGrow 1s ease-in-out infinite;
+}
+.mascot-gavel{
+  right:-8px;
+  top:58px;
+  width:24px;
+  height:10px;
+  background:#8d5f43;
+  box-shadow:-12px 9px 0 #624230;
+  animation:gavelHit 1s steps(2,end) infinite;
+}
+@keyframes typingMove{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-3px) scale(1.01);}
+}
+@keyframes pointMove{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateX(4px) translateY(-3px) rotate(1deg);}
+}
+@keyframes sitBounce{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-5px);}
+}
+@keyframes waveMove{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateX(-2px) translateY(-4px) rotate(-2deg);}
+}
+@keyframes teachMove{
+  0%,100%{transform:translateY(0) rotate(0);}
+  50%{transform:translateX(3px) translateY(-4px) rotate(1deg);}
+}
+@keyframes danceMove{
+  0%,100%{transform:translateY(0) rotate(-1deg);}
+  50%{transform:translateY(-6px) rotate(2deg);}
+}
+@keyframes argLeft{
+  0%,100%{transform:translateX(0);}
+  50%{transform:translateX(-5px) translateY(-2px);}
+}
+@keyframes argRight{
+  0%,100%{transform:translateX(0);}
+  50%{transform:translateX(5px) translateY(-2px);}
+}
+@keyframes judgeMove{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-3px);}
+}
+@keyframes bubbleFloat{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-4px);}
+}
+@keyframes spark{
+  0%,100%{opacity:.35;transform:translateY(0);}
+  50%{opacity:1;transform:translateY(-3px);}
+}
+@keyframes lineShake{
+  0%,100%{transform:translateY(0);opacity:.55;}
+  50%{transform:translateY(-3px);opacity:1;}
+}
+@keyframes popFloat{
+  0%,100%{transform:translateY(0);opacity:.45;}
+  50%{transform:translateY(-5px);opacity:1;}
+}
+@keyframes chartGrow{
+  0%,100%{transform:scaleY(.84);transform-origin:bottom;}
+  50%{transform:scaleY(1.08);transform-origin:bottom;}
+}
+@keyframes gavelHit{
+  0%,100%{transform:rotate(0);}
+  50%{transform:rotate(16deg);}
+}
 
 .output-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--b-3);margin-bottom:14px;}
 .otab{font-size:13px;padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-2);margin-bottom:-0.5px;display:flex;align-items:center;gap:5px;}
@@ -417,12 +619,43 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 
 /* 5 Agent 辩论 */
 .agents-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.agent-card{background:#fff;border:0.5px solid var(--b-3);border-radius:var(--r-md);padding:11px 13px;transition:all .25s;opacity:.3;}
+.agent-card{background:#fff;border:0.5px solid var(--b-3);border-radius:18px;padding:11px 13px;transition:all .25s;opacity:.34;position:relative;overflow:hidden;}
 .agent-card.active{opacity:1;}
 .agent-card.judging{opacity:.6;border-style:dashed;}
 .agent-card.done{opacity:1;}
-.agent-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.agent-avatar{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0;}
+.agent-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;}
+.agent-avatar{
+  width:72px;
+  height:78px;
+  border-radius:16px;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(180deg,#fffaf3 0%,#fdf8f2 100%);
+  border:1px solid rgba(17,17,17,.06);
+  position:relative;
+  overflow:hidden;
+}
+.agent-avatar::after{
+  content:'';
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:8px;
+  height:12px;
+  background:radial-gradient(circle, rgba(0,0,0,.12), transparent 70%);
+  filter:blur(4px);
+}
+.agent-avatar .mascot-sprite-box{
+  width:96px;
+  height:96px;
+  transform:scale(1.08);
+  z-index:1;
+}
+.agent-avatar .mascot-question{font-size:18px;left:0;top:20px;}
+.agent-avatar .mascot-chart{top:34px;right:4px;width:20px;height:16px;border-left-width:3px;border-bottom-width:3px;}
+.agent-avatar .mascot-gavel{top:40px;right:0;width:18px;height:8px;box-shadow:-9px 7px 0 #624230;}
+.agent-avatar .mascot-prop.lines{top:18px;right:0;transform:scale(.72);}
 .agent-name-box{flex:1;min-width:0;}
 .agent-name{font-size:12px;font-weight:500;}
 .agent-role{font-size:10px;color:var(--text-2);}
@@ -440,6 +673,9 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 .round-step.done{color:var(--success);border-bottom-color:var(--success);}
 
 .judge-card{background:linear-gradient(135deg,#EEEDFE,#FBEAF0);border:0.5px solid var(--accent-border);border-radius:var(--r-lg);padding:14px;margin-top:10px;}
+.judge-summary-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.judge-summary-head .agent-avatar{width:84px;height:90px;background:rgba(255,255,255,.5);}
+.judge-summary-head .agent-avatar .mascot-sprite-box{transform:scale(1.18);}
 .judge-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .judge-icon{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
 .judge-title{font-size:13px;font-weight:500;color:#3C3489;}
@@ -611,11 +847,12 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
 /* ────────── 响应式 / 移动端适配 ────────── */
 @media (max-width: 900px){
   .container{box-shadow:none;}
-  .topbar{flex-wrap:wrap;gap:8px;padding:10px 12px;}
+  .topbar{flex-wrap:wrap;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;align-items:flex-start;}
   .brand{order:1;}
-  .nav{order:3;width:100%;justify-content:space-between;}
-  .nav-item{flex:1;justify-content:center;padding:8px 6px;font-size:12px;}
-  .acc-switch{order:2;}
+  .nav{order:3;width:100%;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .nav::-webkit-scrollbar{display:none;}
+  .nav-item{flex:0 0 auto;justify-content:center;padding:10px 12px;font-size:12px;white-space:nowrap;min-height:40px;}
+  .acc-switch{order:2;margin-left:auto;}
   .page{padding:14px;}
   .h1{font-size:16px;}
   .subtitle{font-size:11px;}
@@ -623,6 +860,26 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
   .side-panel{max-height:none;order:-1;}
   .diag-input-row{grid-template-columns:1fr;}
   .agents-grid{grid-template-columns:1fr;}
+  .timeline-strip{grid-template-columns:1fr 1fr;}
+  .diag-score-ring-grid{grid-template-columns:repeat(3,1fr);}
+  .priority-item{align-items:flex-start;}
+  .priority-fix{align-self:flex-start;}
+  .stage-head{flex-wrap:wrap;align-items:flex-start;}
+  .stage-progress{margin-left:0;}
+  .stage-time{order:3;}
+  .judge-summary-head{flex-wrap:wrap;}
+  .judge-summary-head > div:last-child{width:100%;}
+  .debate-rounds{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .debate-rounds::-webkit-scrollbar{display:none;}
+  .round-step{flex:0 0 120px;}
+  .quick-score,.score-hero,.current-acc-banner,.invite-box{flex-direction:column;align-items:flex-start;}
+  .publish-section-head,.improved-head,.diag-summary-head,.lab-intro{flex-direction:column;align-items:stretch;}
+  .publish-section-head > *,.improved-head > *,.diag-summary-head > *{width:100%;}
+  .workspace-main,.workspace-side,.lab-main,.lab-side,.diagnose-main,.diagnose-side{min-width:0;}
+  .mascot-stage{width:224px;height:160px;}
+  .mascot-sprite-box{transform:scale(1.5);}
+  .agent-avatar{width:68px;height:74px;}
+  .judge-summary-head{align-items:flex-start;}
   .score-grid{grid-template-columns:1fr 1fr;}
   .acc-grid{grid-template-columns:1fr;}
   .result-grid{grid-template-columns:1fr 1fr;}
@@ -649,19 +906,38 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
   .cb-rows{grid-template-columns:1fr;}
   .trend-toolbar{gap:6px;}
   .modal{max-width:100%;}
-  .demo-banner{font-size:10px;padding:5px 12px;}
+  .demo-banner{font-size:10px;padding:8px 12px;flex-wrap:wrap;}
+  .output-tabs,.subtabs,.preset-cat-tabs,.publish-mode{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .output-tabs::-webkit-scrollbar,.subtabs::-webkit-scrollbar,.preset-cat-tabs::-webkit-scrollbar,.publish-mode::-webkit-scrollbar{display:none;}
+  .otab,.subtab,.preset-cat-tab,.publish-mode-btn{flex:0 0 auto;white-space:nowrap;}
+  .link-input-row,.insight-panel-head,.insight-foot,.diag-summary-head,.lab-detail-head,.lab-intro,.footer-bottom,.current-acc-banner{flex-direction:column;align-items:stretch;}
+  .cc-head,.comment-meta,.publish-time-rec,.home-section-head,.home-recent-head{align-items:flex-start;}
+  .video-actions,.tc-actions,.modal-btns,.landing-actions,.footer-cta-actions{flex-wrap:wrap;}
+  .result-mini-btn,.copy-mini,.tc-btn,.t-action,.f-btn,.publish-plat-chip,.preset-chip{min-height:36px;}
+  #sub-sameStyle .step-body > div[style*="width:fit-content"]{width:100% !important;overflow-x:auto;}
+  #sub-sameStyle .step-body > div[style*="width:fit-content"]::-webkit-scrollbar{display:none;}
+  #sub-sameStyle div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+  #sub-contentGen > div[style*="grid-template-columns:280px"] > div:first-child{border-right:none !important;border-bottom:0.5px solid var(--b-3);}
+  #sub-imageLab div[style*="grid-template-columns:240px 1fr"]{grid-template-columns:1fr !important;}
+  #sub-imageLab div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+  #labOutput div[style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr) !important;}
 }
 @media (max-width: 520px){
-  .nav-item{font-size:11px;padding:7px 4px;}
+  .topbar{padding:calc(8px + env(safe-area-inset-top,0px)) 10px 8px;}
+  .nav{margin:0 -2px;padding:0 2px 2px;}
+  .nav-item{font-size:11px;padding:9px 10px;}
   .nav-item i{font-size:12px;}
   .brand-tag{display:none;}
-  .topbar{padding:8px 10px;}
   .page{padding:10px;}
   .h1{font-size:15px;}
   .brand-copy{gap:0;}
-  .home-hero-title{font-size:32px;}
-  .landing-title{font-size:28px;}
-  .home-hero-main{padding:28px 20px;}
+  .brand-name{font-size:14px;}
+  .home-shell,.landing-shell{padding:16px 0 24px;}
+  .home-hero-main,.landing-main,.coming-card,.launch-card{padding:20px 16px;}
+  .home-hero-title{font-size:28px;line-height:1.08;letter-spacing:-.04em;}
+  .home-hero-title span{display:block;}
+  .home-hero-sub,.landing-copy,.launch-card p,.footer-copy,.footer-cta-copy{font-size:13px;line-height:1.7;}
+  .landing-title{font-size:26px;line-height:1.12;}
   .home-input-wrap{flex-direction:column;align-items:stretch;border-radius:18px;overflow:visible;gap:8px;padding:8px;background:#fff;}
   .home-cta{border-radius:14px;height:48px;justify-content:center;border-left:none;}
   .quick-grid,.tutorial-grid,.recent-grid,.template-grid,.channel-grid,.data-placeholder,.home-hero-side,.workspace-summary-grid,.lab-summary-grid,.lab-grid,.footer-top{grid-template-columns:1fr;}
@@ -676,6 +952,55 @@ linear-gradient(var(--text),var(--text)) center center / 100% 4px no-repeat;}
   .step-num{width:24px;height:24px;font-size:12px;}
   .step-body{padding-left:0;}
   .img-thumbs{grid-template-columns:repeat(3,1fr);}
+  .field input,.field select,.field textarea,.link-input-row input,.home-input{font-size:16px;}
+  .link-input-row{flex-direction:column;}
+  .link-result-card,.score-hero,.quick-score,.tc-inner,.publish-head,.current-acc-banner,.footer-cta-row{flex-direction:column;align-items:flex-start;}
+  .output-progress{padding:20px 14px;}
+  .step-card{padding:14px 12px;}
+  .step-head{align-items:flex-start;gap:10px;}
+  .step-status{margin-left:0;font-size:10px;line-height:1.4;}
+  .workspace-summary-card,.lab-summary-card,.workspace-side-card,.diagnose-side-card,.tool-settings-card,.member-hero{padding:14px;}
+  .cat-baseline,.judge-card,.priority-item,.tl-seg,.score-ring-card,.gen-stat-panel{padding:12px;}
+  .timeline-strip,.diag-score-ring-grid,.diag-stats-grid,.diag-summary-grid,.score-grid,.plat-select-grid,.ratio-grid{grid-template-columns:1fr;}
+  .priority-item{flex-direction:column;gap:8px;}
+  .priority-fix{width:100%;}
+  .stage-time,.stage-progress{width:100%;}
+  .debate-rounds{margin-inline:-2px;padding-inline:2px;}
+  .round-step{flex-basis:104px;padding:6px 8px;font-size:10px;}
+  .agent-card{padding:10px 11px;}
+  .mascot-stage{width:204px;height:148px;}
+  .mascot-speech{font-size:10px;padding:7px 10px;right:0;}
+  .agent-head{align-items:center;}
+  .agent-avatar{width:64px;height:70px;border-radius:14px;}
+  .agent-avatar .mascot-sprite-box{transform:scale(1);}
+  .judge-summary-head{flex-wrap:wrap;}
+  .agent-score{font-size:16px;}
+  .agent-comment{font-size:10px;}
+  .cb-head,.judge-title,.stage-name{font-size:12px;}
+  .cb-row b{font-size:12px;}
+  .quick-score .qs-mini-ring,.score-ring{margin:0 auto;}
+  .quick-score .qs-info,.score-info{width:100%;}
+  .publish-mode{overflow-x:auto;max-width:100%;}
+  .invite-box{padding:12px;}
+  .invite-code{font-size:16px;letter-spacing:.08em;}
+  .lab-tool-strip,.preset-bar,.tag-row{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .lab-tool-strip::-webkit-scrollbar,.preset-bar::-webkit-scrollbar,.tag-row::-webkit-scrollbar{display:none;}
+  .lab-tool-chip,.preset-chip,.tag{flex:0 0 auto;}
+  #sub-sameStyle .step-body > div[style*="display:flex;gap:8px;margin-top:6px;"]{flex-direction:column;}
+  #sub-sameStyle .step-body > div[style*="display:flex;gap:8px;margin-top:6px;"] .btn{width:100%;justify-content:center;}
+  #labOutput div[style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr !important;}
+  #labOutput div[style*="display:flex;gap:6px;margin-top:10px;"]{flex-direction:column;}
+  #labOutput div[style*="display:flex;gap:6px;margin-top:10px;"] > *{width:100%;}
+  .preview-thumb,.tc-thumb{width:100%;height:auto;aspect-ratio:4/5;}
+  .engine-card,.content-card,.video-card,.trend-card,.publish-panel,.lab-detail,.modal{border-radius:16px;}
+  .insight-grid,.diag-summary-grid,.score-grid,.diag-stats-grid,.plat-select-grid,.ratio-grid{grid-template-columns:1fr;}
+  .ss-ver-tabs{grid-template-columns:1fr;}
+  .publish-mode{width:100%;}
+  .publish-mode-btn{flex:1;justify-content:center;}
+  .acc-switch{width:100%;justify-content:flex-end;}
+  .footer-shell{padding:18px 14px calc(28px + env(safe-area-inset-bottom,0px));}
+  .page{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));}
+  .demo-banner{justify-content:flex-start;text-align:left;}
 }
 
 /* sr-only */
@@ -970,6 +1295,10 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
 .agent-card.entering{animation:agentAppear .38s cubic-bezier(.22,.61,.36,1) both;}
 .agent-card.speaking{border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(83,74,183,.1)!important;opacity:1!important;animation:agentPulse 2s ease infinite!important;}
 .agent-card.done{opacity:1!important;border-color:var(--success-border)!important;background:#fdfffd!important;transition:all .3s!important;}
+.agent-card.speaking .agent-avatar{transform:translateY(-1px);box-shadow:0 8px 20px rgba(83,74,183,.10);}
+.agent-card.speaking .mascot-sprite{filter:contrast(1.12) saturate(1.08) drop-shadow(0 10px 12px rgba(83,74,183,.16));}
+.agent-card.judging .agent-avatar{background:linear-gradient(180deg,#fffdf8 0%,#f8f3eb 100%);}
+.agent-card.done .agent-avatar{background:linear-gradient(180deg,#fafffd 0%,#f3fcf7 100%);}
 .typing-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text-3);animation:dotBlink 1.1s ease infinite;margin:0 2px;vertical-align:middle;}
 .typing-dot:nth-child(2){animation-delay:.22s;}
 .typing-dot:nth-child(3){animation-delay:.44s;}
@@ -1963,7 +2292,7 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
     <div class="tsc-title">关于</div>
     <div class="tsc-row">
       <div><div class="tsc-label">当前版本</div></div>
-      <span style="font-size:12px;color:var(--text-2);">v14 · UI全面升级</span>
+      <span style="font-size:12px;color:var(--text-2);">v15 · 视频链路已接通</span>
     </div>
     <div class="tsc-row">
       <div><div class="tsc-label">服务条款</div></div>
@@ -2175,7 +2504,7 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
 
 <script>
 /* ════════════════ API 配置 ════════════════ */
-const API_BASE = 'http://localhost:3001';
+const API_BASE = location.protocol==='file:' ? 'http://localhost:3001' : '';
 let _backendOnline = null; // null=未检测，true=在线，false=离线
 
 async function checkBackend() {
@@ -2205,6 +2534,15 @@ async function callAPI(endpoint, body, opts = {}) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    ...(Number.isFinite(timeoutMs) ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+async function getAPI(endpoint, opts = {}) {
+  const timeoutMs = opts.timeoutMs;
+  const r = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'GET',
     ...(Number.isFinite(timeoutMs) ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -3074,6 +3412,7 @@ let ssImgEngine='nano';
 let ssVidEngine='seedance';
 let ssSrcPlat='xiaohongshu';
 let ssDstPlat='xiaohongshu';
+let ssVideoTask=null;
 
 function switchInputMode(mode){
   ssInputMode=mode;
@@ -3090,11 +3429,53 @@ function clearSSInput(){
   ssScreenshots=[];renderSSScreenshotThumbs();
   ssInputData=null;
   ssImageInsights=null;
+  ssVideoTask=null;
   document.getElementById('ssInputResult').style.display='none';
   hideSSInsightPanel();
   document.getElementById('ss-step1').classList.remove('done');
   document.getElementById('ss-step1-status').textContent='推荐先用截图';
   updateSSGenBtn();
+}
+function pickBestSSVersion(apiData){
+  const versions=Array.isArray(apiData?.versions)?apiData.versions:[];
+  if(!versions.length)return null;
+  return versions.reduce((best,item)=>Number(item?.score||0)>Number(best?.score||0)?item:best,versions[0]);
+}
+async function startSSVideoGeneration(context){
+  const bestVersion=pickBestSSVersion(context.apiData);
+  const promptSeed=[
+    bestVersion?.title||'',
+    bestVersion?.content||'',
+    context.prodFeature||'',
+  ].filter(Boolean).join('\n');
+  const res=await callAPI('/api/generate-video',{
+    platform:context.platformName,
+    productName:context.prodName,
+    productFeature:context.prodFeature,
+    tone:context.prodTone,
+    angle:bestVersion?.angle||'短视频带货',
+    script:bestVersion?.content||'',
+    prompt:promptSeed,
+    ratio:'9:16',
+    duration:'5',
+  },{timeoutMs:120000});
+  if(!res?.ok)throw new Error(res?.error||'视频任务创建失败');
+  ssVideoTask=res.data||null;
+  return ssVideoTask;
+}
+async function refreshSSVideoTask(silent=false){
+  if(!ssVideoTask?.taskId)return;
+  try{
+    const res=await callAPI('/api/video/task',{taskId:ssVideoTask.taskId},{timeoutMs:60000});
+    if(res?.ok&&res.data){
+      ssVideoTask={...ssVideoTask,...res.data};
+      if(window._ssLastRenderArgs)renderSSOutputV9(...window._ssLastRenderArgs);
+    }else if(!silent){
+      alert(res?.error||'视频状态查询失败');
+    }
+  }catch(err){
+    if(!silent)alert(err.message||'视频状态查询失败');
+  }
 }
 
 function handleSSScreenshot(e){
@@ -3371,16 +3752,23 @@ function runSSGenerate(){
   const prodTone=document.getElementById('ssProdTone').value.trim();
   const genImg=document.getElementById('genImgCheck').checked;
   const genVid=document.getElementById('genVidCheck').checked;
+  const showMascotLoader=genImg||genVid;
   const angle=document.getElementById('cgAngle')?.value||'常规种草';
   const tone=document.getElementById('cgTone')?.value||'闺蜜推荐';
   const engineNames={nano:'Nano Banana',gpt:'GPT Image 2',seedance:'Seedance',happy:'HappyHouse'};
   const dstPlatInfo=DOMESTIC_PLATFORMS[ssDstPlat]||{name:ssDstPlat};
   const tmpl=getCurrentTemplate();
+  ssVideoTask=null;
   const btn=document.getElementById('ssGenBtn');btn.disabled=true;
   const out=document.getElementById('ssOutput');out.style.display='block';
   const msgs=['[Hit Engine] 分析灵感内容的创作框架...','[Hit Engine] 提取钩子结构和情绪触发点...',`[Hit Engine] 适配「${dstPlatInfo.name}」内容逻辑...`,`[Hit Engine] 用「${escapeHTML(prodName)}」重新创作 3 个版本...`,'[Hit Engine] 生成话题标签和发布策略...'];
   let mi=0;
-  const showProgress=(isReal)=>{out.innerHTML=`<div class="output-progress"><div class="spinner"></div><div class="progress-text" id="ssProgText">${msgs[0]}</div><div class="progress-sub" style="color:${isReal?'var(--success)':'var(--text-2)'};">${isReal?'🔗 已连接 Hit Engine API，正在真实生成...':'⚠️ 演示模式 · 启动后端后可使用真实 API'}</div></div>`;};
+  const showProgress=(isReal)=>{
+    const subText=isReal?'🔗 已连接 Hit Engine API，正在真实生成...':'⚠️ 演示模式 · 启动后端后可使用真实 API';
+    out.innerHTML=showMascotLoader
+      ? renderPixelGirlLoader('ssProgText',msgs[0],isReal?`🔗 已连接 Hit Engine API，正在真实生成${genImg&&genVid?'图片、视频与内容':genImg?'图片与内容':'视频与内容'}...`:'⚠️ 演示模式 · 启动后端后可使用真实 API',isReal?'var(--success)':'var(--text-2)')
+      : `<div class="output-progress"><div class="spinner"></div><div class="progress-text" id="ssProgText">${msgs[0]}</div><div class="progress-sub" style="color:${isReal?'var(--success)':'var(--text-2)'};">${subText}</div></div>`;
+  };
   const lt=setInterval(()=>{const el=document.getElementById('ssProgText');if(el)el.textContent=msgs[mi%msgs.length];mi++;},1000);
   checkBackend().then(online=>{
     showProgress(online);
@@ -3389,8 +3777,24 @@ function runSSGenerate(){
         inputData:ssInputData,srcPlat:ssSrcPlat,dstPlat:ssDstPlat,
         prodName,prodFeature,prodTone,angle,tone,industryName:tmpl.name||'',
       }).then(res=>{
-        clearInterval(lt);
         window._ssAPIData=(res.ok&&res.data)?res.data:null;
+        if(genVid&&window._ssAPIData){
+          return startSSVideoGeneration({
+            apiData:window._ssAPIData,
+            prodName,
+            prodFeature,
+            prodTone,
+            platformName:dstPlatInfo.name||ssDstPlat,
+          }).catch(err=>{
+            console.warn('视频任务创建失败，保留文案结果:',err.message);
+            ssVideoTask={status:'failed',error:err.message};
+          }).finally(()=>{
+            clearInterval(lt);
+            renderSSOutputV9(prodName,prodFeature,prodTone,genImg,genVid,dstPlatInfo,tmpl,engineNames);
+            if(ssVideoTask?.taskId)refreshSSVideoTask(true);
+          });
+        }
+        clearInterval(lt);
         renderSSOutputV9(prodName,prodFeature,prodTone,genImg,genVid,dstPlatInfo,tmpl,engineNames);
       });
     } else {
@@ -3402,6 +3806,7 @@ function runSSGenerate(){
 function renderSSOutputV9(prodName,prodFeature,prodTone,genImg,genVid,dstPlatInfo,tmpl,engineNames){
   const out=document.getElementById('ssOutput');
   const safeName=escapeHTML(prodName);
+  window._ssLastRenderArgs=[prodName,prodFeature,prodTone,genImg,genVid,dstPlatInfo,tmpl,engineNames];
 
   // 使用 Claude API 真实返回数据（如有），否则降级到本地演示数据
   const apiData=window._ssAPIData||null;
@@ -3519,12 +3924,23 @@ function renderSSOutputV9(prodName,prodFeature,prodTone,genImg,genVid,dstPlatInf
   }
 
   // 视频区（如勾选）
+  const videoStatus=ssVideoTask?.status||'demo';
+  const isVideoReady=Boolean(ssVideoTask?.url);
+  const videoStatusLabel=isVideoReady?'已生成':videoStatus==='failed'?'生成失败':ssVideoTask?.taskId?'生成中':'脚本已就绪';
+  const videoActionHtml=isVideoReady
+    ? `<a class="copy-mini" href="${escapeAttr(ssVideoTask.url)}" target="_blank" rel="noopener"><i class="ti ti-download"></i>打开视频</a>`
+    : `<button class="copy-mini" onclick="refreshSSVideoTask()"><i class="ti ti-refresh"></i>${ssVideoTask?.taskId?'刷新状态':'重试查询'}</button>`;
+  const videoMetaHtml=ssVideoTask?.taskId
+    ? `<div style="font-size:10px;color:var(--text-3);margin-top:6px;">任务 ID：${escapeHTML(ssVideoTask.taskId)} · 状态：${escapeHTML(videoStatusLabel)}</div>`
+    : ssVideoTask?.error
+      ? `<div style="font-size:10px;color:var(--warning-text);margin-top:6px;">${escapeHTML(ssVideoTask.error)}</div>`
+      : '';
   const vidHtml=genVid?`
     <div class="video-grid">
       <div class="video-card">
-        <div class="video-preview"><div class="vp-icon"><i class="ti ti-player-play"></i></div><span class="vp-engine">${engineNames[ssVidEngine]}</span><span class="vp-dur">15s</span></div>
-        <div class="video-info"><div class="video-title">原创视频 v1</div><div class="video-script">${escapeHTML(copy.content.split('\n').slice(0,4).join('\n'))}</div></div>
-        <div class="video-actions"><button class="copy-mini" onclick="alert('演示模式：接入 ${engineNames[ssVidEngine]} API 后可下载')"><i class="ti ti-download"></i>下载 MP4</button></div>
+        <div class="video-preview"><div class="vp-icon"><i class="ti ti-player-play"></i></div><span class="vp-engine">${engineNames[ssVidEngine]}</span><span class="vp-dur">${isVideoReady?'ready':'5s'}</span></div>
+        <div class="video-info"><div class="video-title">原创视频 v1 · ${escapeHTML(videoStatusLabel)}</div><div class="video-script">${escapeHTML(copy.content.split('\n').slice(0,4).join('\n'))}</div>${videoMetaHtml}</div>
+        <div class="video-actions">${videoActionHtml}</div>
       </div>
     </div>
   `:`<div class="empty-state"><i class="ti ti-video-off"></i><div class="es-title">未勾选视频生成</div><div>在 Step 4 勾选「生成视频」即可</div></div>`;
@@ -3967,7 +4383,7 @@ function runLabGenerate(){
   const imageBase64List=cfg.isBatch?labBatchImages.map(img=>img.dataUrl):cfg.isMulti?labMultiImages.map(img=>img.dataUrl):(labUploadedImage?[labUploadedImage.dataUrl]:[]);
   const msgs=['[GPT Image] 分析图片...','[GPT Image] 应用风格参数...','[GPT Image] 生成中，请稍候...','[GPT Image] 优化细节...'];
   let mi=0;
-  const showProgress=(isReal)=>{out.innerHTML=`<div class="output-progress"><div class="spinner"></div><div class="progress-text" id="labProgText">${msgs[0]}</div><div class="progress-sub" style="color:${isReal?'var(--success)':'var(--warning-text)'};">${isReal?`🔗 GPT Image 真实生成中（${ratio}）· 通常需要 1-3 分钟，请耐心等待`:'⚠️ 演示模式 · 启动后端后可真实生成'}</div></div>`;};
+  const showProgress=(isReal)=>{out.innerHTML=renderPixelGirlLoader('labProgText',msgs[0],isReal?`🔗 GPT Image 真实生成中（${ratio}）· 通常需要 1-3 分钟，请耐心等待`:'⚠️ 演示模式 · 启动后端后可真实生成',isReal?'var(--success)':'var(--warning-text)');};
   const lt=setInterval(()=>{const el=document.getElementById('labProgText');if(el)el.textContent=msgs[mi%msgs.length];mi++;},900);
   checkBackend().then(online=>{
     showProgress(online);
@@ -3990,6 +4406,27 @@ function renderLabRealOutput(imageData,cfg,ratio){
   const ratioStyle=ratio==='9:16'?'aspect-ratio:9/16':ratio==='1:1'?'aspect-ratio:1/1':ratio==='16:9'?'aspect-ratio:16/9':ratio==='4:3'?'aspect-ratio:4/3':'aspect-ratio:3/4';
   out.innerHTML=`<div style="background:linear-gradient(135deg,#E7F7EF,#F7FFFB);border:1px solid var(--success-border);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:12px;color:#085041;"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;"><div style="font-size:13px;font-weight:600;"><i class="ti ti-check"></i> 真实图片生成完成</div><div style="font-size:10px;background:#fff;padding:3px 8px;border-radius:999px;border:0.5px solid var(--success-border);">${escapeHTML(cfg.engine)} · ${ratio}</div></div><div style="font-size:11px;color:#0F6E56;">这张图来自后端真实返回，不是演示占位图。</div></div><div class="ref-compare">${refSrc?`<div class="ref-card"><div class="ref-card-head"><span>参考图</span><span>上传原图</span></div><div class="ref-card-media"><img src="${escapeAttr(refSrc)}" style="aspect-ratio:1/1;object-fit:cover;" alt="参考图" /></div><div class="ref-card-note">这一张会作为主体参考，系统应尽量保留版型、颜色、印花和轮廓。</div></div>`:''}<div class="gen-card"><div class="gen-card-head"><span>生成结果</span><span>${escapeHTML(cfg.engine)} · ${ratio}</span></div><div class="gen-card-media"><div style="${ratioStyle};max-height:560px;overflow:hidden;border-radius:12px;border:1px solid var(--success-border);background:linear-gradient(180deg,#FAFAF7,#F1EFE8);box-shadow:0 10px 24px rgba(29,158,117,0.10);"><img src="${escapeAttr(imgSrc)}" style="width:100%;height:100%;object-fit:contain;display:block;" alt="AI生成图片" /></div></div></div></div><div style="display:flex;gap:6px;margin-top:10px;"><a class="btn full" href="${escapeAttr(imgSrc)}" download="AI生成_${Date.now()}.png"><i class="ti ti-download"></i>下载真实图片</a><button class="btn pri full" onclick="runLabGenerate()"><i class="ti ti-refresh"></i>重新生成</button></div>`;
   pushLabHistory({tool:labCurrentTool,label:LAB_NAMES[labCurrentTool],mode:'真实结果',ratio,thumb:getLabHistoryThumb(imgSrc),ts:Date.now()});
+}
+
+function getAgentMeta(key){
+  return AGENTS.find(a=>a.key===key)||AGENTS[0];
+}
+
+function renderMascotProp(prop){
+  if(prop==='lines')return '<div class="mascot-prop lines"></div>';
+  if(prop==='question')return '<div class="mascot-question">?</div>';
+  if(prop==='chart')return '<div class="mascot-chart"></div>';
+  if(prop==='gavel')return '<div class="mascot-gavel"></div>';
+  return '';
+}
+
+function renderMascotSprite(agentKey, extraClass=''){
+  const meta=getAgentMeta(agentKey);
+  return `<div class="mascot-sprite-box ${extraClass}"><div class="mascot-sprite ${meta.pose} ${meta.motion}"></div>${renderMascotProp(meta.prop)}</div>`;
+}
+
+function renderPixelGirlLoader(textId,message,subText,subColor){
+  return `<div class="output-progress"><div class="mascot-loader"><div class="mascot-stage" aria-hidden="true"><div class="mascot-speech">Hit Engine 正在生成...</div><div class="mascot-spark s1"></div><div class="mascot-spark s2"></div><div class="mascot-main-wrap"><div class="mascot-sprite-box"><div class="mascot-sprite pose-main typing"></div></div></div></div><div class="progress-text" id="${textId}">${message}</div><div class="progress-sub" style="color:${subColor};">${subText}</div></div></div>`;
 }
 
 
@@ -4234,11 +4671,11 @@ const CATEGORY_BASELINES={
 
 // 5 Agent 角色定义
 const AGENTS=[
-  {key:'content',name:'内容分析师',role:'标题 + 正文',icon:'ti ti-edit',color:'#D85A30'},
-  {key:'visual',name:'视觉诊断师',role:'封面 + 构图',icon:'ti ti-photo',color:'#534AB7'},
-  {key:'growth',name:'增长策略师',role:'钩子 + 转化',icon:'ti ti-trending-up',color:'#1D9E75'},
-  {key:'user',name:'用户模拟器',role:'代入用户视角',icon:'ti ti-users',color:'#D4537E'},
-  {key:'judge',name:'综合裁判',role:'多方权衡定论',icon:'ti ti-gavel',color:'#BA7517'},
+  {key:'content',name:'内容分析师',role:'标题 + 正文',color:'#D85A30',pose:'pose-glasses',motion:'pointing',prop:'lines'},
+  {key:'visual',name:'视觉诊断师',role:'封面 + 构图',color:'#534AB7',pose:'pose-sit',motion:'sitting',prop:''},
+  {key:'growth',name:'增长策略师',role:'钩子 + 转化',color:'#1D9E75',pose:'pose-stick',motion:'teaching',prop:'chart'},
+  {key:'user',name:'用户模拟器',role:'代入用户视角',color:'#D4537E',pose:'pose-wave',motion:'arg-left',prop:'question'},
+  {key:'judge',name:'综合裁判',role:'多方权衡定论',color:'#BA7517',pose:'pose-headphone',motion:'judge',prop:'gavel'},
 ];
 
 function runDiagnose(){
@@ -4398,7 +4835,7 @@ function runDebate(){
     agentsHtml+=`
       <div class="agent-card" id="agent-${a.key}">
         <div class="agent-head">
-          <div class="agent-avatar" style="background:${a.color}"><i class="${a.icon}"></i></div>
+          <div class="agent-avatar">${renderMascotSprite(a.key)}</div>
           <div class="agent-name-box">
             <div class="agent-name">${a.name}</div>
             <div class="agent-role">${a.role}</div>
@@ -4545,7 +4982,8 @@ function doJudge(agentScores){
     judgeArea.innerHTML=`
       <!-- 综合评分 -->
       <div class="judge-card" style="margin-bottom:12px;">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+        <div class="judge-summary-head">
+          <div class="agent-avatar">${renderMascotSprite('judge')}</div>
           <div style="position:relative;width:72px;height:72px;flex-shrink:0;">
             <svg width="72" height="72" viewBox="0 0 72 72">
               <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-2)" stroke-width="6"/>
