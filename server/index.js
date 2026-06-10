@@ -1,0 +1,26 @@
+﻿const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
+const express = require("express");
+const cors = require("cors");
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.static(path.join(__dirname, "../public")));
+app.get("/health", (req, res) => res.json({ ok: true, mode: "real", ts: Date.now() }));
+app.use("/api/generate-copy",      require("./routes/generateCopy"));
+app.use("/api/generate-samestyle", require("./routes/generateSameStyle"));
+app.use("/api/diagnose-prescore",  require("./routes/diagnosePrescore"));
+app.use("/api/diagnose",           require("./routes/diagnose"));
+app.use("/api/image",              require("./routes/image"));
+app.use("/api/generate-image",     require("./routes/image"));
+app.use("/api/parse-link",         require("./routes/parseLink"));
+app.use("/api/generate-video",     require("./routes/video"));
+app.use("/api/video",              require("./routes/video"));
+app.use("/api/radar",              require("./routes/radar"));
+app.use((err, req, res, next) => res.status(500).json({ ok: false, error: err.message }));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log("Hit Engine running at http://localhost:" + PORT);
+  console.log("Text model: " + process.env.TEXT_MODEL);
+  console.log("Image model: " + process.env.IMAGE_MODEL);
+});
