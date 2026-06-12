@@ -1,6 +1,95 @@
 const router = require('express').Router();
-const { visionClient } = require('../clients');
+const { visionClient, textClient } = require('../clients');
+const { redfox } = require('../redfox');
+const { saveRecord } = require('../gallery');
 const https = require('https');
+
+// ── RedFox Seedream 5.0 图生图（有参考图时的主通道）──
+// 提交: POST /story/api/parseWork/imageGen/arkSubmit（约 7.1 积分/次）
+// 查询: POST /story/api/parseWork/imageGen/arkResult
+const SEEDREAM_MODEL = process.env.REDFOX_IMAGE_MODEL || 'doubao-seedream-5-0-260128';
+// Seedream 像素总量下限约 3.69MP，按比例映射到合规尺寸
+const SEEDREAM_SIZES = {
+  '1:1': '2048x2048', '4:3': '2304x1728', '3:4': '1728x2304',
+  '16:9': '3072x1728', '9:16': '1728x3072',
+};
+
+function toDataUri(b64) {
+  return b64.startsWith('data:') || b64.startsWith('http') ? b64 : 'data:image/jpeg;base64,' + b64;
+}
+
+// 把 base64 参考图先上传到 RedFox OSS（免费），换成短 URL 再喂给生成接口。
+// 否则几 MB 的 base64 直塞 JSON 会让生成接口卡几分钟甚至超时。
+const REDFOX_BASE = (process.env.REDFOX_BASE || 'https://redfox.hk').replace(/\/$/, '');
+async function uploadToRedfox(img) {
+  if (img.startsWith('http')) return img; // 已是 URL（如上一轮生成结果）
+  let mime = 'image/jpeg', data = img;
+  const m = img.match(/^data:(image\/[\w+]+);base64,(.*)$/);
+  if (m) { mime = m[1]; data = m[2]; }
+  const buf = Buffer.from(data, 'base64');
+  let fmt = (mime.split('/')[1] || 'jpeg').toLowerCase();
+  if (fmt === 'jpg') fmt = 'jpeg';
+  if (!['png', 'jpeg', 'webp'].includes(fmt)) fmt = 'jpeg';
+  const fd = new FormData();
+  fd.append('file', new Blob([buf], { type: mime }), 'image.' + fmt);
+  fd.append('format', fmt);
+  const r = await fetch(REDFOX_BASE + '/story/api/parseWork/imageGen/uploadImage', {
+    method: 'POST',
+    headers: { 'X-API-Key': process.env.REDFOX_API_KEY },
+    body: fd,
+    signal: AbortSignal.timeout(90000),
+  });
+  const j = await r.json();
+  if (j.code !== 2000 || !j.data?.imageUrl) throw new Error(j.msg || '参考图上传失败');
+  return j.data.imageUrl;
+}
+
+// 返回图片 URL 数组。series=true 时用 Seedream 组图功能一次出多张风格连贯的图
+async function seedreamGen(prompt, images, ratio, { series = false, count = 1 } = {}) {
+  const body = {
+    model: SEEDREAM_MODEL,
+    prompt,
+    size: SEEDREAM_SIZES[ratio] || SEEDREAM_SIZES['1:1'],
+    sequentialImageGeneration: series && count > 1 ? 'auto' : 'disabled',
+    responseFormat: 'url',
+    watermark: false,
+  };
+  if (series && count > 1) body.maxImages = Math.min(count, 15);
+  if (images && images.length) {
+    const imgs = images.map(toDataUri);
+    body.image = imgs.length === 1 ? imgs[0] : imgs;
+  }
+  const d = await redfox('/story/api/parseWork/imageGen/arkSubmit', body);
+  const taskId = d?.taskId || d?.task_id;
+  if (!taskId) throw new Error('未拿到图片任务 ID: ' + JSON.stringify(d).slice(0, 120));
+  console.log('[seedream] task:', taskId, series ? '(组图x' + count + ')' : '');
+  const maxPolls = series ? 120 : 90; // 多参考图/组图都慢，普通 3 分钟、组图 4 分钟
+  for (let i = 0; i < maxPolls; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const q = await redfox('/story/api/parseWork/imageGen/arkResult', { taskId });
+    const status = String(q?.status || '').toLowerCase();
+    if (status === 'succeeded') {
+      const urls = Array.isArray(q.imageUrls) ? q.imageUrls : [];
+      if (!urls.length) throw new Error('任务成功但未返回图片');
+      return urls;
+    }
+    if (status === 'failed') throw new Error(q?.failReason || '图片生成失败');
+  }
+  throw new Error('图片生成超时，稍后可重试');
+}
+
+// 变体模式：同一指令并行 N 个任务，返回 N 张不同种子的图
+async function seedreamVariants(prompt, images, ratio, count) {
+  const n = Math.max(1, Math.min(count, 8));
+  const results = await Promise.allSettled(
+    Array.from({ length: n }, () => seedreamGen(prompt, images, ratio))
+  );
+  const urls = results.filter(r => r.status === 'fulfilled').flatMap(r => r.value);
+  if (!urls.length) throw new Error(results[0]?.reason?.message || '全部生成失败');
+  const failed = results.filter(r => r.status === 'rejected').length;
+  if (failed) console.warn('[seedream] variants:', failed, '/', n, '个任务失败');
+  return urls;
+}
 
 // ── 文生图（3次重试）────────────────────────────────
 async function textToImage(prompt, size) {
@@ -47,7 +136,7 @@ async function textToImage(prompt, size) {
 // ── 视觉精细识别（专为服装设计）────────────────────
 async function describeClothing(base64) {
   try {
-    const url = base64.startsWith('data:') ? base64 : 'data:image/jpeg;base64,' + base64;
+    const url = base64.startsWith('data:') || base64.startsWith('http') ? base64 : 'data:image/jpeg;base64,' + base64;
     const vr = await visionClient.chat.completions.create({
       model: process.env.VISION_MODEL,
       messages: [{
@@ -258,28 +347,145 @@ async function handleImageGen(tool, body, res) {
     '16:9':'1536x1024', '9:16':'1024x1536'
   };
   const size = sizeMap[ratio] || '1024x1024';
-  const refImage = imageBase64 || (imageBase64List && imageBase64List[0]);
+  const refImages = (Array.isArray(imageBase64List) && imageBase64List.length)
+    ? imageBase64List
+    : (imageBase64 ? [imageBase64] : []);
+  const refImage = refImages[0];
+
+  const count = Math.max(1, Math.min(parseInt(body.count, 10) || 1, 8));
+  const genMode = body.genMode === 'series' ? 'series' : 'variants';
+
+  // 产品保真硬约束：有参考图时强制锁定服装所有细节
+  const FIDELITY = ' STRICT PRODUCT FIDELITY (mandatory): The garment in the output must be IDENTICAL to the one in the reference image(s) — exact fabric texture and material, exact colors and tones, exact neckline shape, exact cuff and sleeve design, exact buttons, seams, prints and patterns, same silhouette and length. Do NOT redesign, restyle, recolor or alter the clothing in any way. Only change the model, pose, scene, background or lighting as instructed.';
+  const MULTI_REF = ' All reference images show the SAME product from different angles; combine them to reconstruct every detail accurately.';
+  // 成像风格：默认「真实种草感」去 AI 化（印花文字类设计图除外）
+  const UGC_STYLE = ' IMAGING STYLE — authentic UGC realism (mandatory): looks like a casual photo taken on an iPhone in one take, NOT a professional studio shoot. Subtle smartphone sensor grain and natural noise in shadows, true-to-life unfiltered colors, slightly imperfect casual framing, natural ambient light with realistic imperfections. The person must look like a REAL ordinary person, not an AI render or magazine model: natural unretouched skin with visible pores and slight unevenness, a few flyaway hairs, relaxed candid expression and posture, asymmetric natural features. Absolutely NO airbrushing, NO beauty filter, NO cinematic color grading, NO perfect studio lighting.';
+  const photoStyle = body.photoStyle === 'studio' ? 'studio' : 'ugc';
+  const ugcApplies = photoStyle === 'ugc' && tool !== 'text';
 
   try {
-    // Step 1: 视觉识别产品图
+    // 主通道：RedFox Seedream（有参考图=图生图，无参考图=文生图）
+    try {
+      // 先把所有 base64 参考图并行上传换成 URL（只传一次，变体/组图复用）
+      const refUrls = refImages.length
+        ? await Promise.all(refImages.map(uploadToRedfox))
+        : [];
+      if (refImages.length) console.log('[image/' + tool + '] 已上传', refUrls.length, '张参考图换 URL');
+      // 自由编辑模式：用户描述就是指令核心；模板工具走 prompt 构建器
+      const core = tool === 'free'
+        ? ((extraDesc || '').trim() || 'High quality professional fashion product photograph')
+        : buildHighQualityPrompt(tool, null, extraDesc || '', params);
+      const prompt = core
+        + (refUrls.length ? FIDELITY : '')
+        + (refUrls.length > 1 ? MULTI_REF : '')
+        + (ugcApplies ? UGC_STYLE : '');
+      console.log('[image/' + tool + '] seedream prompt:', prompt.slice(0, 120).replace(/\n/g, ' '), '| count:', count, genMode);
+      const urls = count > 1 && genMode === 'series'
+        ? await seedreamGen(prompt + ' Generate a cohesive series of ' + count + ' images: consistent subject and style, varied angles/poses/compositions.', refUrls, ratio, { series: true, count })
+        : await seedreamVariants(prompt, refUrls, ratio, count);
+      const engine = refImages.length ? 'seedream-i2i' : 'seedream-t2i';
+      // 自动存入本地素材库（失败不影响返回）
+      const rec = await saveRecord({ tool, prompt: extraDesc || prompt, ratio, engine, urls });
+      return res.json({
+        ok: true, imageData: urls[0], imageList: urls, prompt, tool, size, engine,
+        local: rec ? rec.files.map(f => '/gallery/' + f) : null,
+        galleryId: rec ? rec.id : null,
+      });
+    } catch (e) {
+      // 有参考图时不回退：bobdong 文生图是按描述重画，违反产品保真要求，直接报真实错误
+      if (refImages.length) throw e;
+      console.warn('[image/' + tool + '] seedream 失败，回退 bobdong:', e.message);
+    }
+
+    // 备用通道：视觉识别 + bobdong gpt-image-2 文生图
     let clothingDesc = null;
     if (refImage) {
       clothingDesc = await describeClothing(refImage);
     }
-
-    // Step 2: 构建高质量 prompt
     const prompt = buildHighQualityPrompt(tool, clothingDesc, extraDesc || '', params);
-    console.log('[image/' + tool + '] prompt preview:', prompt.slice(0, 120).replace(/\n/g, ' '));
-
-    // Step 3: 生成图片
+    console.log('[image/' + tool + '] t2i prompt:', prompt.slice(0, 120).replace(/\n/g, ' '));
     const imageData = await textToImage(prompt, size);
 
-    res.json({ ok: true, imageData, prompt, tool, size });
+    res.json({ ok: true, imageData, imageList: [imageData], prompt, tool, size, engine: 'gpt-image-t2i' });
   } catch(err) {
     console.error('[image/' + tool + '] error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
   }
 }
+
+// AI 推荐场景光影：根据产品描述 + 用户风格描述，动态生成 6 个摄影方案
+router.post('/suggest-scenes', async (req, res) => {
+  const { productDesc, styleDesc } = req.body || {};
+  if (!styleDesc && !productDesc) return res.status(400).json({ ok: false, error: '请至少描述一下想要的风格' });
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+  try {
+    const completion = await textClient.chat.completions.create({
+      model: process.env.TEXT_MODEL,
+      messages: [{ role: 'user', content: `你是一位顶级电商服装摄影指导。根据产品和风格要求，设计 6 个差异明显的拍摄场景+光影方案。
+
+产品：${productDesc || '女装单品'}
+风格要求：${styleDesc || '自然高级'}
+
+每个方案给中文名称（10字内，含场景和光线特征）和一段英文摄影 prompt（40词内，涵盖 location, lighting, mood, color palette）。
+
+严格按 JSON 输出，不要其他文字：
+{"scenes":[{"name":"清晨侧逆光·亚麻窗纱","prompt":"morning side backlight through linen curtains, soft warm glow, ..."}]}` }],
+      max_tokens: 900,
+      temperature: 0.8,
+    });
+    const raw = completion.choices[0].message.content.trim();
+    const m = raw.match(/\{[\s\S]*\}/); // 上游偶尔在 JSON 外夹杂文字，提取首个对象
+    const data = JSON.parse(m ? m[0] : raw);
+    if (!Array.isArray(data.scenes) || !data.scenes.length) throw new Error('模型未返回有效方案: ' + raw.slice(0, 80));
+    return res.json({ ok: true, data });
+  } catch (err) {
+    lastErr = err;
+    console.warn('[suggest-scenes] attempt ' + (attempt + 1) + ':', err.message);
+  }
+  }
+  res.status(500).json({ ok: false, error: lastErr.message });
+});
+
+// 反推提示词：传图（base64 或 URL），AI 反推出可复刻的生成提示词
+router.post('/reverse-prompt', async (req, res) => {
+  const { imageBase64, imageUrl } = req.body || {};
+  try {
+    let dataUri = null;
+    if (imageBase64) {
+      dataUri = imageBase64.startsWith('data:') ? imageBase64 : 'data:image/jpeg;base64,' + imageBase64;
+    } else if (imageUrl) {
+      const full = imageUrl.startsWith('/')
+        ? 'http://localhost:' + (process.env.PORT || 3001) + imageUrl
+        : imageUrl;
+      const r = await fetch(full, { signal: AbortSignal.timeout(60000) });
+      if (!r.ok) throw new Error('图片获取失败 HTTP ' + r.status);
+      const buf = Buffer.from(await r.arrayBuffer());
+      dataUri = 'data:' + (r.headers.get('content-type') || 'image/jpeg') + ';base64,' + buf.toString('base64');
+    } else {
+      return res.status(400).json({ ok: false, error: '请提供图片' });
+    }
+    const vr = await visionClient.chat.completions.create({
+      model: process.env.VISION_MODEL,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: '分析这张图片，输出能用 AI 复刻它的生成提示词。严格按 JSON 输出，不要其他文字：\n{"prompt":"英文提示词（60-100词，涵盖主体与服装细节、构图、场景、光线、色调、风格质感）","promptZh":"中文一句话概括画面"}' },
+          { type: 'image_url', image_url: { url: dataUri } },
+        ],
+      }],
+      max_tokens: 400,
+    });
+    const raw = vr.choices[0].message.content.trim();
+    const m = raw.match(/\{[\s\S]*\}/);
+    const data = JSON.parse(m ? m[0] : raw);
+    if (!data.prompt) throw new Error('未能反推出提示词');
+    res.json({ ok: true, data });
+  } catch (err) {
+    console.error('[reverse-prompt]', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 router.post('/:tool', (req, res) => handleImageGen(req.params.tool, req.body, res));
 router.post('/', (req, res) => handleImageGen(req.body.tool || 'text', req.body, res));

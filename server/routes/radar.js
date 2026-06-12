@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { redfox, redfoxGet } = require('../redfox');
+const { tikhub } = require('../tikhub');
 
 // ── 爆款雷达：RedFox 数据接口 ──────────────────────
 // 1) 小红书七日爆款榜  GET /story/api/cozeSkill/getXhsCozeSkillDataSeven
@@ -82,6 +83,63 @@ router.post('/trending', async (req, res) => {
     res.json({ ok: true, data });
   } catch (err) {
     console.error('[radar trending]', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /api/radar/douyin-hot —— 抖音实时热榜（TikHub，接受免费额度）
+router.post('/douyin-hot', async (req, res) => {
+  try {
+    const d = await tikhub('/api/v1/douyin/app/v3/fetch_hot_search_list');
+    const raw = d?.data?.word_list || d?.word_list || [];
+    const list = raw
+      .filter(w => w && w.word)
+      .map(w => ({
+        word: w.word,
+        hotValue: w.hot_value || 0,
+        position: w.position || 0,
+        videoCount: w.video_count || 0,
+        viewCount: w.view_count || 0,
+        pinned: !!w.is_n1,
+      }));
+    res.json({ ok: true, data: { list } });
+  } catch (err) {
+    console.error('[radar douyin-hot]', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /api/radar/xhs-comments —— 抓取小红书笔记评论区（TikHub，需账户余额）
+// 需要带 xsec_token 的完整分享链接
+router.post('/xhs-comments', async (req, res) => {
+  let { url } = req.body || {};
+  if (!url) return res.status(400).json({ ok: false, error: '缺少笔记链接' });
+  try {
+    // 短链先解一跳拿完整链接
+    if (/xhslink\.com/i.test(url)) {
+      try {
+        const r = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15000), headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const loc = r.headers.get('location');
+        if (loc) url = loc;
+      } catch {}
+    }
+    const idMatch = url.match(/(?:explore|discovery\/item)\/([0-9a-zA-Z]+)/);
+    const tokenMatch = url.match(/xsec_token=([^&#\s]+)/);
+    if (!idMatch) throw new Error('无法从链接中识别笔记 ID');
+    if (!tokenMatch) throw new Error('链接缺少 xsec_token——请在小红书 App 内用「复制链接」获取完整分享链接');
+    const d = await tikhub('/api/v1/xiaohongshu/web_v3/fetch_note_comments', {
+      note_id: idMatch[1],
+      xsec_token: decodeURIComponent(tokenMatch[1]),
+    });
+    const raw = d?.comments || d?.data?.comments || [];
+    const comments = raw.map(c => ({
+      content: c.content || '',
+      likes: parseInt(c.like_count, 10) || 0,
+      user: c.user_info?.nickname || c.user?.nickname || '',
+    })).filter(c => c.content).sort((a, b) => b.likes - a.likes);
+    res.json({ ok: true, data: { noteId: idMatch[1], comments } });
+  } catch (err) {
+    console.error('[radar xhs-comments]', err.message);
     res.status(500).json({ ok: false, error: err.message });
   }
 });

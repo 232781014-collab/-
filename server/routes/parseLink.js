@@ -11,8 +11,34 @@ function detectPlatform(url = '') {
   return null;
 }
 
+// RedFox 平台代码 → 中文名
+const PLATFORM_NAMES = { xhsw: '小红书', xhs: '小红书', xiaohongshu: '小红书', dy: '抖音', douyin: '抖音', gzh: '公众号', sph: '视频号', wb: '微博', weibo: '微博' };
+
+// 用文本模型提取创作框架（失败不影响主流程）
+async function analyzeInsights({ platform, type, title, desc, note }) {
+  try {
+    const completion = await textClient.chat.completions.create({
+      model: process.env.TEXT_MODEL,
+      messages: [{ role: 'user', content: `分析这条${platform}${type === 'video' ? '视频' : '图文'}内容的创作手法。
+标题：${title || '（无）'}
+正文：${(desc || '').slice(0, 800) || '（无）'}
+用户补充：${note || '无'}
+
+严格按 JSON 输出：
+{"tags":["标签1","标签2"],"hookType":"钩子类型","emotionArc":"情绪弧线描述","coreFramework":"一句话总结创作框架"}` }],
+      max_tokens: 350,
+      temperature: 0.2,
+    });
+    const raw = completion.choices[0].message.content.trim();
+    return JSON.parse(raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim());
+  } catch (e) {
+    console.warn('[parse-link insights]', e.message);
+    return {};
+  }
+}
+
 router.post('/', async (req, res) => {
-  const { url, pastedContent, note } = req.body;
+  const { url, pastedContent, note, deep } = req.body;
 
   // 模式1：用户粘贴了内容文本（推荐路径）
   if (pastedContent && pastedContent.trim().length > 10) {
@@ -60,43 +86,49 @@ ${pastedContent.slice(0, 1000)}
     }
   }
 
-  // 模式2：仅有 URL —— 优先走 RedFox 作品解析（拿真实标题/封面/图片/视频）
+  // 模式2：仅有 URL —— RedFox 真实解析
+  // 基础：parse（图片/视频/封面/标题，0.6积分）
+  // 深度（deep=true）：再并行查作品详情拿正文全文+互动数据（再 0.6积分，支持小红书/抖音）
   if (url && process.env.REDFOX_API_KEY) {
     try {
-      const d = await redfox('/story/api/parseWork/parse', { url });
-      // RedFox 返回的是平台内部代码，映射为中文名
-      const PLATFORM_NAMES = { xhsw: '小红书', xhs: '小红书', xiaohongshu: '小红书', dy: '抖音', douyin: '抖音', gzh: '公众号', sph: '视频号', wb: '微博', weibo: '微博' };
-      const platform = PLATFORM_NAMES[String(d.platform || '').toLowerCase()] || detectPlatform(url) || d.platform || '其他';
-      const type = d.videoUrl ? 'video' : 'image';
-      const imageUrls = Array.isArray(d.imageUrls) ? d.imageUrls : [];
-
-      // 用文本模型对真实标题做创作框架分析（失败不影响主流程）
-      let insights = {};
-      if (d.title) {
-        try {
-          const completion = await textClient.chat.completions.create({
-            model: process.env.TEXT_MODEL,
-            messages: [{ role: 'user', content: `分析这条${platform}${type === 'video' ? '视频' : '图文'}内容的创作手法。
-标题：${d.title}
-用户补充：${note || '无'}
-
-严格按 JSON 输出：
-{"tags":["标签1","标签2"],"hookType":"钩子类型","emotionArc":"情绪弧线描述","coreFramework":"一句话总结创作框架"}` }],
-            max_tokens: 300,
-            temperature: 0.2,
-          });
-          const raw = completion.choices[0].message.content.trim();
-          insights = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim());
-        } catch (e) { console.warn('[parse-link insights]', e.message); }
+      const isXhs = /xiaohongshu\.com|xhslink/i.test(url);
+      const isDy = /douyin\.com|iesdouyin/i.test(url);
+      let detailTask = Promise.resolve(null);
+      if (deep && isXhs) {
+        detailTask = redfox('/story/api/xhsUser/queryWorkDetail', { workLink: url })
+          .catch(e => { console.warn('[parse-link xhs detail]', e.message); return null; });
+      } else if (deep && isDy) {
+        detailTask = redfox('/story/api/dyData/queryWork', { workUrl: url })
+          .catch(e => { console.warn('[parse-link dy detail]', e.message); return null; });
       }
+      const [d, detail] = await Promise.all([
+        redfox('/story/api/parseWork/parse', { url }),
+        detailTask,
+      ]);
+
+      const platform = PLATFORM_NAMES[String(d.platform || '').toLowerCase()] || detectPlatform(url) || d.platform || '其他';
+      const type = d.videoUrl || detail?.workType === 'video' ? 'video' : 'image';
+      const imageUrls = Array.isArray(d.imageUrls) ? d.imageUrls : [];
+      const title = detail?.workTitle || detail?.title || d.title || note || '已解析内容';
+      const desc = detail?.workDesc || detail?.content || '';
+      const stats = detail ? {
+        likes: detail.workLikedCount ?? detail.likeCount ?? null,
+        collects: detail.workCollectedCount ?? detail.collectCount ?? null,
+        comments: detail.workCommentsCount ?? detail.commentCount ?? null,
+        reads: detail.workReadedCount ?? detail.playCount ?? null,
+      } : null;
+
+      const insights = (title || desc) ? await analyzeInsights({ platform, type, title, desc, note }) : {};
 
       return res.json({
         ok: true,
-        source: 'redfox_parse',
+        source: detail ? 'redfox_deep' : 'redfox_parse',
         platform,
         type,
-        title: d.title || note || '已解析内容',
-        description: d.title || '',
+        title,
+        description: desc || title,
+        content: desc,
+        stats,
         tags: insights.tags || [],
         hookType: insights.hookType || '',
         emotionArc: insights.emotionArc || '',

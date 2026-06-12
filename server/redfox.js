@@ -13,6 +13,7 @@ async function request(path, { method = 'POST', body, query } = {}) {
       'X-API-Key': process.env.REDFOX_API_KEY,
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(90000), // 单次请求超时保护，避免挂死
   });
   const text = await r.text();
   let json;

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hit Engine 使用手册</title>
+<style>
+  :root{--text:#111;--text-2:#666;--text-3:#999;--b:#e5e2dc;--bg:#faf9f6;--accent:#8B1D24;--success:#1D9E75;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:14px;}
+  .wrap{max-width:860px;margin:0 auto;padding:40px 24px 80px;}
+  h1{font-size:26px;margin:0 0 6px;}
+  .sub{color:var(--text-2);margin-bottom:28px;}
+  h2{font-size:18px;margin:40px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--b);}
+  h3{font-size:15px;margin:22px 0 8px;}
+  p{margin:8px 0;}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px;background:#fff;}
+  th,td{border:1px solid var(--b);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:#f3f1ec;font-weight:600;white-space:nowrap;}
+  code{background:#f0ede7;padding:1px 6px;border-radius:4px;font-size:12px;}
+  .tip{background:#fff;border:1px solid var(--b);border-left:3px solid var(--success);border-radius:8px;padding:10px 14px;margin:12px 0;font-size:13px;}
+  .warn{border-left-color:#D8A030;}
+  .toc{background:#fff;border:1px solid var(--b);border-radius:10px;padding:16px 20px;font-size:13px;}
+  .toc a{color:var(--accent);text-decoration:none;margin-right:16px;display:inline-block;padding:2px 0;}
+  ol,ul{padding-left:22px;margin:8px 0;}
+  li{margin:4px 0;}
+  .badge{display:inline-block;background:#f0ede7;border-radius:99px;padding:1px 9px;font-size:11px;color:var(--text-2);margin-left:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hit Engine 使用手册</h1>
+  <div class="sub">爆款内容生产工具 · 文案 / 图片 / 视频 / 数据情报一体化 · 更新于 2026-06</div>
+
+  <div class="toc">
+    <a href="#start">快速开始</a><a href="#flow">整体工作流</a><a href="#radar">爆款雷达</a><a href="#samestyle">灵感创作</a><a href="#copy">多平台文案</a><a href="#lab">图片工坊</a><a href="#video">视频生成</a><a href="#diagnose">爆款诊断</a><a href="#cost">成本一览</a><a href="#faq">常见问题</a>
+  </div>
+
+  <h2 id="start">一、快速开始</h2>
+  <ol>
+    <li>双击项目目录里的 <code>启动爆款引擎.bat</code>——服务在后台静默启动，浏览器自动打开工具页（<code>http://localhost:3001</code>）。</li>
+    <li>用完想关闭服务，双击 <code>停止爆款引擎.bat</code>。</li>
+    <li>重复双击启动脚本不会重复开服务，只会重新打开页面。</li>
+  </ol>
+  <div class="tip">建议始终用<b>自己的浏览器</b>访问 http://localhost:3001。某些内嵌预览窗口会拦截跳外部网站的链接（比如打开小红书原文）。</div>
+
+  <h2 id="flow">二、整体工作流</h2>
+  <p>推荐的完整生产线：</p>
+  <p><b>爆款雷达选题 → 一键送进灵感创作 → 出 3 版原创文案 → 图片工坊出图（保真+真实感）→ 用生成图写文案 / 生成视频 → 发布</b></p>
+  <ul>
+    <li>想快速试通路：只做文案 + 一张产品图。</li>
+    <li>想做完整爆款复刻：文案、图片、视频一起生成。</li>
+    <li>你得到的是提炼后的<b>创作框架</b>和多版本原创内容，不是原文硬抄。</li>
+  </ul>
+
+  <h2 id="radar">三、爆款雷达（爆款数据页）</h2>
+  <h3>小红书七日爆款榜</h3>
+  <p>基于近 7 天热门笔记 TOP50，按 25 个垂直赛道筛选（默认时尚穿搭）。每张卡片显示封面、作者、粉丝数、7 日新增点赞与互动。</p>
+  <ul>
+    <li><b>同款创作</b>：把这条笔记直接送进灵感创作流程。</li>
+    <li><b>原文</b>：浏览器中新标签页打开小红书；<b>复制按钮</b>可直接复制笔记链接。</li>
+  </ul>
+  <h3>关键词搜热门</h3>
+  <p>搜产品相关关键词（如「亚麻衬衫」「法式穿搭」），返回真实互动数据（赞/藏/评），支持综合/最热/最新排序和加载更多。用来找对标笔记最高效。</p>
+  <h3>全网热点聚合</h3>
+  <p>每小时聚合微博/抖音/B站/快手/知乎/头条/百度热搜，同一事件跨平台合并为一个热点。点「借势写文案」把热点词带进创作输入框。</p>
+
+  <h2 id="samestyle">四、灵感创作（同款改写）</h2>
+  <ol>
+    <li><b>导入灵感</b>，三种方式任选：贴链接（推荐）/ 传截图 / 手动粘贴文字。</li>
+    <li>贴链接时勾选<b>「深度解析」</b>（默认开）：额外抓取正文全文和互动数据，支持小红书与抖音，多花 0.6 积分，强烈建议保持开启——正文是框架分析的核心材料。</li>
+    <li>选目标平台 → 填产品信息（名称/卖点/人群/调性）→ 生成。</li>
+    <li>产出：创作框架拆解（钩子类型/情绪弧线/CTA 策略）+ 3 个角度的原创版本（情感共鸣/干货攻略/故事叙事），可继续接视频生成。</li>
+  </ol>
+
+  <h3>③ 爆款同款图（风格学爆款，衣服是你的）</h3>
+  <p>解析爆款链接后封面自动带入 → 上传你的产品图（最多 6 张）→ 点「反推爆款风格」让 AI 提取构图/光线/氛围（可手动修改）→ 生成同款图。风格复刻爆款，但服装细节严格锁定为你的产品。结果自动存入素材库。也可跳过①直接当普通生图用。</p>
+  <h3>⑥ 分发 · 发布包导出</h3>
+  <p>文案生成后，在分发卡片一键：复制标题/正文/标签/全文、下载发布包（.md，含文案+配图清单+发布检查表）、批量下载同款图。平台没有官方自动发布接口，当前以导出代替，照着清单手动发布。</p>
+
+  <h2 id="copy">五、多平台文案生产</h2>
+  <p>填产品信息，勾选平台（小红书/抖音/视频号/公众号/微博），一键生成各平台调性的文案：小红书闺蜜种草体、抖音前 3 秒钩子、公众号深度种草等，每条附发布建议。</p>
+
+  <h2 id="lab">六、图片工坊</h2>
+  <h3>主流程：提示引擎 + 输出画廊（双栏）</h3>
+  <ul>
+    <li><b>自由编辑</b>：上传参考图（可从作品库选）+ 用自然语言描述想要的画面 → 立即生成。生成按钮下方实时显示积分消耗。</li>
+    <li><b>传图反推提示词</b>：传一张别人的爆款图，AI 反推出能复刻它的英文提示词，自动填入描述框。</li>
+    <li><b>输出画廊</b>：右侧大图预览 + 全部作品缩略图墙。每张图可：下载 / 迭代修改（设为参考图继续改）/ 写文案 / 反推提示词 / 删除。视频作品也会出现在这里。</li>
+    <li><b>本地作品库</b>：每次生成自动下载保存到 <code>素材库\09_AI_Generated\日期\</code>，永不过期，OSS 链接失效也不怕。</li>
+  </ul>
+  <h3>模板工具（高级功能入口，10 个）</h3>
+  <table>
+    <tr><th>工具</th><th>用途</th><th>要传图吗</th></tr>
+    <tr><td>服装模特图</td><td>产品图 → AI 模特上身（可选模特类型/年龄/姿势/场景）</td><td>要（多角度更好）</td></tr>
+    <tr><td>商品多场景</td><td>单图 → 多个生活场景展示图</td><td>要</td></tr>
+    <tr><td>风格迁移</td><td>切换法式复古/胶片/莫兰迪等视觉调性</td><td>要</td></tr>
+    <tr><td>智能修图</td><td>画质提升、色差修复、去瑕疵</td><td>要</td></tr>
+    <tr><td>背景替换</td><td>智能抠图换背景</td><td>要</td></tr>
+    <tr><td>AI 印花文字</td><td>T恤印花/海报/Logo 文字设计</td><td>不用</td></tr>
+    <tr><td>批量生图</td><td>多 SKU 一次出模特图+场景图</td><td>要（最多 9 张）</td></tr>
+    <tr><td>多图融合</td><td>模特+服装+场景合成一张</td><td>要（2-3 张）</td></tr>
+    <tr><td>AI 配色</td><td>同款多色不用重拍</td><td>要</td></tr>
+    <tr><td>AI 扩图</td><td>任意比例扩展为目标比例</td><td>要</td></tr>
+  </table>
+  <h3>关键功能</h3>
+  <ul>
+    <li><b>产品保真模式</b>：上传参考图后，生成时锁定材质、颜色、领口、袖口、印花、版型等所有细节。上传<b>正面+背面+细节特写多角度图（最多 6 张）</b>能显著提升还原度。</li>
+    <li><b>成像风格</b>：默认<b>「真实种草感」</b>——iPhone 抓拍质感、自然颗粒、真实皮肤纹理，去 AI 味，适合小红书种草；切「商业精修感」出棚拍大片，适合详情页主图。</li>
+    <li><b>生成数量 1-8 张</b>，两种模式：「多变体·挑图」同指令出多张不同结果；「连贯组图·发笔记」出一组风格连贯的系列图，适合多图笔记。</li>
+    <li><b>AI 推荐场景光影</b>：一句话描述风格（如「南法庭院度假感」），AI 生成 6 个场景方案，点击即填入。</li>
+    <li><b>以此图再创作</b>：生成结果一键设为参考图继续迭代（换场景/调光影），且不挤掉你的产品原图。</li>
+    <li><b>写爆款文案</b>：生成的图一键送进灵感创作，围绕这张图产出文案。</li>
+  </ul>
+  <div class="tip">推荐顺序：先用「AI 印花文字」验证链路（不用传图）→ 再用模特图/场景图做主力素材 → 最后用修图/配色/扩图微调。</div>
+  <div class="tip warn">AI 生成没有 100% 像素级保证，商用前请人眼把关印花、纽扣等细节。某个细节反复不对时，把那个部位的特写图加进参考图。</div>
+
+  <h2 id="video">七、视频生成</h2>
+  <p>在灵感创作流程中勾选视频生成。使用豆包 Seedance 2.0：720p、支持 9:16 等比例、4-15 秒、自动配音、无水印。任务创建后点「刷新状态」轮询，完成后出现「打开视频」链接（OSS 地址可直接下载）。</p>
+
+  <h2 id="diagnose">八、爆款诊断</h2>
+  <p>在爆款数据页第二个子页签。贴入你的标题+正文：先按品类权重快速预评分，再进入 5 位专家（内容/视觉/增长/用户/裁判）三轮辩论，产出最终评分、优先改进项和可直接使用的改写稿。</p>
+
+  <h2 id="cost">九、成本一览（积分）</h2>
+  <table>
+    <tr><th>动作</th><th>成本</th></tr>
+    <tr><td>文案生成 / 诊断 / AI 场景推荐</td><td>按 token 计，单次很低</td></tr>
+    <tr><td>链接解析（基础）</td><td>约 0.6 / 次</td></tr>
+    <tr><td>链接解析（深度，含正文+互动数据）</td><td>约 1.2 / 次</td></tr>
+    <tr><td>雷达榜单 / 关键词搜索 / 热点</td><td>约 0.6 / 次</td></tr>
+    <tr><td>图片生成</td><td>约 7.1 / 张（8 张变体约 57）</td></tr>
+    <tr><td>视频生成</td><td>约 14.3 / 次</td></tr>
+    <tr><td>参考图上传</td><td>免费</td></tr>
+  </table>
+
+  <h2 id="faq">十、常见问题</h2>
+  <h3>点「原文」提示 blocked / 打不开小红书？</h3>
+  <p>那是内嵌预览窗口的限制（只允许 localhost）。用自己的浏览器打开 http://localhost:3001 即可，或用卡片上的复制按钮拿链接。</p>
+  <h3>图片生成报「请求异常 / timed out」？</h3>
+  <p>多参考图的生成需要 1-3 分钟，请耐心等待不要关页面；若仍失败，看报错信息（如图片尺寸太小需至少 14px）。后端日志在 <code>logs\server.log</code>。</p>
+  <h3>生成的衣服和我的产品不一样？</h3>
+  <p>确认上传了产品参考图（不传图就是按文字凭空画）；多传几张不同角度；把出错部位的特写图加进参考。</p>
+  <h3>视频/图片链接过期？</h3>
+  <p>生成结果的 OSS 链接有时效，满意的图请及时下载保存到本地素材库。</p>
+</div>
+</body>
+</html>

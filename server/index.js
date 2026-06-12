@@ -17,6 +17,9 @@ app.use("/api/parse-link",         require("./routes/parseLink"));
 app.use("/api/generate-video",     require("./routes/video"));
 app.use("/api/video",              require("./routes/video"));
 app.use("/api/radar",              require("./routes/radar"));
+const gallery = require("./gallery");
+app.use("/api/gallery",            gallery.router);
+app.use("/gallery",                express.static(gallery.DIR));
 app.use((err, req, res, next) => res.status(500).json({ ok: false, error: err.message }));
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

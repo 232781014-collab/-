@@ -11,6 +11,8 @@ router.post('/', async (req, res) => {
   const src = sourceContent || {};
   const prod = product;
 
+  const comments = Array.isArray(src.comments) ? src.comments.filter(c => c && c.content).slice(0, 8) : [];
+
   try {
     const prompt = `你是一位专业的爆款内容改写专家。
 
@@ -18,6 +20,10 @@ router.post('/', async (req, res) => {
 标题/钩子：${src.title || '用户手动输入的内容'}
 内容摘要：${(src.content || '').slice(0, 400)}
 内容类型：${src.type === 'video' ? '短视频' : '图文笔记'}
+${comments.length ? `
+【原款评论区真实用户声音（按点赞排序）】
+${comments.map((c, i) => `${i + 1}. ${String(c.content).slice(0, 80)}${c.likes ? `（赞${c.likes}）` : ''}`).join('\n')}
+请从评论中提炼真实痛点、purchase intent 和用户原话用语，自然融入改写文案。` : ''}
 
 【目标产品】
 产品名称：${prod.name}

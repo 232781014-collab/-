@@ -1386,6 +1386,7 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
     <div class="nav-item" data-page="trending" onclick="goPage('trending')"><i class="ti ti-flame"></i>爆款数据</div>
     <div class="nav-item" data-page="produce" onclick="goPage('produce')"><i class="ti ti-sparkles"></i>创作</div>
     <div class="nav-item" data-page="accounts" onclick="goPage('accounts')"><i class="ti ti-users"></i>账号分发</div>
+    <div class="nav-item" onclick="window.open('/manual.html','_blank')"><i class="ti ti-book"></i>手册</div>
     <div class="nav-item" data-page="settings" onclick="goPage('settings')"><i class="ti ti-settings"></i>设置</div>
   </div>
   <div class="acc-switch" id="accSwitcher"></div>
@@ -1567,6 +1568,17 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
         <div class="preset-bar" id="sameStylePresetBar" style="margin-bottom:14px;"></div>
         <div class="flow">
       <!-- Step 1: 输入灵感内容 -->
+      <div id="ssPipeBar" style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px 14px;background:#fff;border:0.5px solid var(--b-3);border-radius:12px;">
+        <span style="font-size:11px;font-weight:600;margin-right:2px;"><i class="ti ti-route"></i> 爆款流水线</span>
+        <span onclick="scrollToStep('ss-step1')" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">① 选爆款</span><i class="ti ti-chevron-right" style="font-size:11px;color:var(--text-3);"></i>
+        <span onclick="scrollToStep('ss-step3')" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">② 产品信息</span><i class="ti ti-chevron-right" style="font-size:11px;color:var(--text-3);"></i>
+        <span onclick="scrollToStep('ss-stepImg')" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">③ 同款图</span><i class="ti ti-chevron-right" style="font-size:11px;color:var(--text-3);"></i>
+        <span onclick="scrollToStep('ss-step2')" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">④ 平台与文案</span><i class="ti ti-chevron-right" style="font-size:11px;color:var(--text-3);"></i>
+        <span onclick="ssToDiagnose()" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">⑤ 爆款诊断</span><i class="ti ti-chevron-right" style="font-size:11px;color:var(--text-3);"></i>
+        <span onclick="scrollToStep('ss-step6')" style="font-size:11px;padding:4px 11px;border-radius:999px;border:0.5px solid var(--b-3);cursor:pointer;background:#fff;color:var(--text);">⑥ 分发导出</span>
+        <span style="flex:1"></span>
+        <span onclick="goPage('trending')" style="font-size:11px;color:var(--text-2);cursor:pointer;"><i class="ti ti-radar"></i> 去爆款雷达选题 →</span>
+      </div>
       <div class="step-card" id="ss-step1">
         <div class="step-head">
           <div class="step-num">1</div>
@@ -1614,6 +1626,7 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
             </div>
             <div class="link-input-row">
               <input id="ssUrl" placeholder="粘贴小红书 / 抖音 / 视频号链接..." onkeydown="if(event.key==='Enter')confirmSSInput('link')" />
+              <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2);margin-top:6px;cursor:pointer;"><input type="checkbox" id="ssDeepParse" checked style="accent-color:var(--text);" />深度解析：抓取正文全文与互动数据（小红书/抖音，多 0.6 积分）</label>
               <button class="btn pri" onclick="confirmSSInput('link')"><i class="ti ti-search"></i>识别</button>
             </div>
           </div>
@@ -1625,9 +1638,62 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
       </div>
 
       <!-- Step 2: 选来源平台 + 目标平台 -->
-      <div class="step-card" id="ss-step2">
+      <div class="step-card" id="ss-step3">
         <div class="step-head">
           <div class="step-num">2</div>
+          <div class="step-title">你的产品信息</div>
+          <div class="step-status">用于生成原创内容</div>
+        </div>
+        <div class="step-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="field"><label>产品名称</label><input id="ssProdName" placeholder="例：法式碎花连衣裙" oninput="updateSSGenBtn()" /></div>
+            <div class="field"><label>价格</label><input id="ssProdPrice" placeholder="例：¥299" /></div>
+          </div>
+          <div class="field"><label>核心卖点（越具体越好）</label>
+            <textarea id="ssProdFeature" style="min-height:55px;" placeholder="例：真丝质感，收腰显瘦，法式复古纽扣，适合梨形身材"></textarea>
+          </div>
+          <div class="field"><label>品牌风格 / 语气</label>
+            <input id="ssProdTone" placeholder="例：小众设计感，不走大众路线，闺蜜推荐语气" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: 选生成类型 + AI引擎 -->
+      
+      <div class="step-card" id="ss-stepImg">
+        <div class="step-head">
+          <div class="step-num">3</div>
+          <div class="step-title">爆款同款图 <span style="font-size:10px;font-weight:400;color:var(--text-3);">风格学爆款 · 衣服是你的</span></div>
+          <div class="step-status" id="ss-stepImg-status">可单独使用</div>
+        </div>
+        <div class="step-body">
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start;">
+            <div>
+              <div style="font-size:11px;color:var(--text-2);margin-bottom:5px;">爆款封面</div>
+              <div id="ssImgCover" style="width:120px;aspect-ratio:3/4;border-radius:10px;border:0.5px solid var(--b-3);background:var(--bg-2);overflow:hidden;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;color:var(--text-3);padding:6px;text-align:center;">先在①解析爆款链接</span></div>
+              <button class="copy-mini" style="margin-top:6px;width:100%;justify-content:center;" onclick="ssImgReverse()"><i class="ti ti-wand"></i>反推爆款风格</button>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-2);margin-bottom:5px;">你的产品图（最多 6 张，多角度更准）<span id="ssImgRefCount" style="color:var(--text-3);"></span></div>
+              <input type="file" id="ssImgRefInput" accept="image/*" multiple style="display:none" onchange="ssImgAddFiles(event)" />
+              <div class="img-drop" style="padding:14px;" onclick="document.getElementById('ssImgRefInput').click()"><i class="ti ti-cloud-upload"></i>上传产品图（生成时锁定材质/颜色/领口/袖口细节）</div>
+              <div class="img-thumbs" id="ssImgRefThumbs" style="margin-top:6px;"></div>
+              <div style="font-size:11px;color:var(--text-2);margin:10px 0 5px;">爆款风格描述（点「反推」自动生成，可修改）</div>
+              <textarea id="ssImgPrompt" style="width:100%;min-height:64px;font-size:12px;padding:8px 10px;border:0.5px solid var(--b-3);border-radius:var(--r-md);resize:vertical;font-family:var(--font-sans);box-sizing:border-box;line-height:1.6;" placeholder="构图 / 光线 / 场景 / 色调…留空则生成时自动反推"></textarea>
+              <div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end;flex-wrap:wrap;">
+                <div class="field" style="flex:0 0 84px;margin:0;"><label>比例</label><select id="ssImgRatio"><option>3:4</option><option>1:1</option><option>9:16</option></select></div>
+                <div class="field" style="flex:0 0 84px;margin:0;"><label>数量</label><select id="ssImgCount"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+                <div class="field" style="flex:1;min-width:130px;margin:0;"><label>成像风格</label><select id="ssImgStyle"><option value="ugc">真实种草感</option><option value="studio">商业精修感</option></select></div>
+                <button class="btn pri" style="flex:0 0 auto;" onclick="ssImgGenerate()"><i class="ti ti-sparkles"></i>生成同款图</button>
+              </div>
+              <div id="ssImgOut" style="margin-top:10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step-card" id="ss-step2">
+        <div class="step-head">
+          <div class="step-num">4</div>
           <div class="step-title">选择平台</div>
           <div class="step-status">来源 + 目标（可不同）</div>
         </div>
@@ -1662,30 +1728,9 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
       </div>
 
       <!-- Step 3: 填写产品信息 -->
-      <div class="step-card" id="ss-step3">
-        <div class="step-head">
-          <div class="step-num">3</div>
-          <div class="step-title">你的产品信息</div>
-          <div class="step-status">用于生成原创内容</div>
-        </div>
-        <div class="step-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div class="field"><label>产品名称</label><input id="ssProdName" placeholder="例：法式碎花连衣裙" oninput="updateSSGenBtn()" /></div>
-            <div class="field"><label>价格</label><input id="ssProdPrice" placeholder="例：¥299" /></div>
-          </div>
-          <div class="field"><label>核心卖点（越具体越好）</label>
-            <textarea id="ssProdFeature" style="min-height:55px;" placeholder="例：真丝质感，收腰显瘦，法式复古纽扣，适合梨形身材"></textarea>
-          </div>
-          <div class="field"><label>品牌风格 / 语气</label>
-            <input id="ssProdTone" placeholder="例：小众设计感，不走大众路线，闺蜜推荐语气" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: 选生成类型 + AI引擎 -->
       <div class="step-card" id="ss-step4">
         <div class="step-head">
-          <div class="step-num">4</div>
+          <div class="step-num">5</div>
           <div class="step-title">选择生成内容</div>
           <div class="step-status">文案必选，图片/视频按需</div>
         </div>
@@ -1769,6 +1814,25 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
 
         <!-- 产出区 -->
         <div class="output-section" id="ssOutput" style="display:none;"></div>
+      <div class="step-card" id="ss-step6" style="margin-top:14px;">
+        <div class="step-head">
+          <div class="step-num">6</div>
+          <div class="step-title">分发 · 发布包导出 <span style="font-size:10px;font-weight:400;color:var(--text-3);">平台无自动发布接口，先一键打包</span></div>
+          <div class="step-status" id="ss-step6-status">完成④后可用</div>
+        </div>
+        <div class="step-body">
+          <div style="font-size:11px;color:var(--text-2);margin-bottom:10px;">把当前选中的文案版本、同款图、视频整理成发布包：文案逐项复制，图片下载到本地，照着清单手动发布。</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn pri" onclick="ssCopyField('all',this)"><i class="ti ti-copy"></i>复制全文</button>
+            <button class="btn" onclick="ssCopyField('title',this)">复制标题</button>
+            <button class="btn" onclick="ssCopyField('content',this)">复制正文</button>
+            <button class="btn" onclick="ssCopyField('tags',this)">复制标签</button>
+            <button class="btn" onclick="ssExportPackage()"><i class="ti ti-package"></i>下载发布包 (.md)</button>
+            <button class="btn" onclick="ssDownloadImgs()"><i class="ti ti-photo-down"></i>下载同款图</button>
+          </div>
+          <div id="ssExportInfo" style="margin-top:10px;"></div>
+        </div>
+      </div>
       </div>
       <div class="workspace-side">
         <div class="workspace-side-card workspace-side-dark">
@@ -1829,122 +1893,92 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
     <div class="lab-shell">
       <div class="h1">图片工坊</div>
       <div class="subtitle">不依赖爆款链接，独立使用各类 AI 图片工具。先生成，再继续局部修改，最后把满意结果留在历史里。</div>
-      <div class="lab-summary-grid">
-        <div class="lab-summary-card dark">
-          <h3>一张图，不必只做一次</h3>
-          <p>图片工坊的定位不是单次出图，而是把背景替换、模特图、扩图、修图这些动作收进一个连续编辑流程里。</p>
-        </div>
-        <div class="lab-summary-card">
-          <h3>先测图，再精修</h3>
-          <p>如果只是验证链路，优先用「AI 印花文字」；如果要测参考图一致性，优先用「背景替换」或「智能修图」。</p>
-        </div>
-        <div class="lab-summary-card">
-          <h3>历史可回看</h3>
-          <p>每次生成会在右侧留一条记录，方便回看最近做过哪些工具，也能继续沿着上一张图往下改。</p>
-        </div>
-      </div>
+      <style>
+        .lab-mini-tools{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px;}
+        .lab-mini-tool{display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 13px;border:0.5px solid var(--b-3);border-radius:999px;background:#fff;cursor:pointer;transition:all .12s;color:var(--text-2);}
+        .lab-mini-tool:hover{border-color:var(--text);color:var(--text);}
+        .lab-mini-tool.active{background:var(--text);color:#fff;border-color:var(--text);}
+        .lab-mini-tool.active i{color:#fff !important;}
+        .lab-mini-tool i{font-size:14px;}
+      </style>
       <div class="lab-intro">
         <div class="lab-intro-copy">
           <div id="labBackendStatus" class="lab-status checking"><span class="lab-status-dot"></span>检测后端中...</div>
-          <div style="margin-top:6px;">先测图建议直接用「AI 印花文字」或「背景替换」，前者不用上传图片，最适合验证生图链路。</div>
         </div>
-        <button class="btn pri" onclick="openLabQuickTest()"><i class="ti ti-bolt"></i>一键测试生图</button>
+        <a class="btn" href="/manual.html" target="_blank" rel="noopener"><i class="ti ti-book"></i>使用手册</a>
       </div>
-      <div class="lab-body">
-        <div class="lab-main">
-          <div class="lab-tool-strip">
-            <span class="lab-tool-chip">模特 / 场景</span>
-            <span class="lab-tool-chip">参考图强保留</span>
-            <span class="lab-tool-chip">连续编辑</span>
-            <span class="lab-tool-chip">结果可回看</span>
-          </div>
-          <div class="preset-bar" id="labPresetBar" style="margin-bottom:10px;"></div>
-          <div class="lab-grid">
-      <div class="lab-card lab-ready" onclick="openLabTool('model')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#D85A30;"><i class="ti ti-user"></i></div>
-        <div class="lab-card-name">服装模特图</div>
-        <div class="lab-card-desc">白底→AI 模特上身</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('scene')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#1D9E75;"><i class="ti ti-camera"></i></div>
-        <div class="lab-card-name">商品多场景</div>
-        <div class="lab-card-desc">单图→多场景套图</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('style')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#D4537E;"><i class="ti ti-palette"></i></div>
-        <div class="lab-card-name">风格迁移</div>
-        <div class="lab-card-desc">切换风格调性</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('enhance')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#7F77DD;"><i class="ti ti-wand"></i></div>
-        <div class="lab-card-name">智能修图</div>
-        <div class="lab-card-desc">画质提升/色差修复</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('bg')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#378ADD;"><i class="ti ti-replace"></i></div>
-        <div class="lab-card-name">背景替换</div>
-        <div class="lab-card-desc">智能抠图换背景</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('text')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#BA7517;"><i class="ti ti-typography"></i></div>
-        <div class="lab-card-name">AI 印花文字</div>
-        <div class="lab-card-desc">印花/海报设计</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('batch')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#534AB7;"><i class="ti ti-stack-2"></i></div>
-        <div class="lab-card-name">批量生图</div>
-        <div class="lab-card-desc">多 SKU 一次处理</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('merge')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#EF9F27;"><i class="ti ti-layers-intersect"></i></div>
-        <div class="lab-card-name">多图融合</div>
-        <div class="lab-card-desc">模特+衣服+场景</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('color')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#E0518A;"><i class="ti ti-color-swatch"></i></div>
-        <div class="lab-card-name">AI 配色</div>
-        <div class="lab-card-desc">同款多色不用重拍</div>
-      </div>
-      <div class="lab-card lab-ready" onclick="openLabTool('expand')">
-        <div class="lab-ready-mark">✓ 可用</div>
-        <div class="lab-card-icon" style="background:#3DA39A;"><i class="ti ti-arrows-maximize"></i></div>
-        <div class="lab-card-name">AI 扩图</div>
-        <div class="lab-card-desc">比例适配各平台</div>
-      </div>
-          </div>
-          <div class="lab-detail" id="labDetail"></div>
-        </div>
-        <div class="lab-side">
-          <div class="lab-side-card">
-            <div class="lab-side-head">
-              <div class="lab-side-title">最近历史</div>
-              <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="renderLabHistory(true)">刷新</button>
+      <style>
+        .lab2-grid{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start;margin-top:4px;}
+        @media(max-width:900px){.lab2-grid{grid-template-columns:1fr;}}
+        .lab2-panel{background:#fff;border:0.5px solid var(--b-3);border-radius:14px;padding:16px;}
+        .lab2-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+        .lab2-upbox{flex:1;border:1px dashed var(--b-3);border-radius:10px;padding:13px 8px;text-align:center;cursor:pointer;font-size:12px;color:var(--text-2);display:flex;flex-direction:column;gap:3px;align-items:center;transition:all .12s;}
+        .lab2-upbox:hover{border-color:var(--text);color:var(--text);}
+        .lab2-upbox i{font-size:18px;}
+        .lab2-upbox span{font-size:10px;color:var(--text-3);}
+        .gal-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;margin-top:10px;max-height:300px;overflow-y:auto;}
+        .gal-thumb{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:#f3f1ec;}
+        .gal-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+        .gal-thumb.sel{border-color:var(--text);}
+        .gal-thumb .gal-vid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;}
+        .gal-main-img{width:100%;max-height:420px;object-fit:contain;border-radius:10px;background:linear-gradient(180deg,#FAFAF7,#F1EFE8);display:block;}
+        .gal-meta{font-size:11px;color:var(--text-2);margin:8px 0;line-height:1.6;max-height:64px;overflow:auto;}
+        .gal-actions{display:flex;gap:6px;flex-wrap:wrap;}
+        .gal-actions .btn{font-size:11px;padding:6px 10px;}
+        .lab2-note{font-size:10px;color:var(--text-3);margin-top:4px;line-height:1.5;}
+      </style>
+      <div class="lab2-grid">
+        <div class="lab2-panel">
+          <div class="lab2-title"><i class="ti ti-sparkles"></i>提示引擎 <span style="font-size:10px;font-weight:400;color:var(--text-3);margin-left:4px;">Seedream 5.0 · 2K</span></div>
+          <div class="field"><label>参考图片 <span id="lab2RefCount" style="color:var(--text-3);font-weight:400;">0/6</span></label>
+            <div style="display:flex;gap:8px;">
+              <div class="lab2-upbox" onclick="document.getElementById('lab2File').click()"><i class="ti ti-upload"></i>添加图片<span>可多选 · 多角度更准</span></div>
+              <div class="lab2-upbox" onclick="toggleGalPicker()"><i class="ti ti-photo-search"></i>从作品库选择<span>历史生成结果</span></div>
             </div>
-            <div class="lab-side-copy">保留最近生成过的工具记录。后面我们可以继续把这里升级成真正的可回看图片历史。</div>
-            <div class="lab-history-list" id="labHistoryList"></div>
+            <input type="file" id="lab2File" accept="image/*" multiple style="display:none" onchange="lab2AddFiles(event)" />
+            <div id="lab2Picker" style="display:none;margin-top:8px;border:0.5px solid var(--b-3);border-radius:10px;padding:8px;"><div class="gal-wall" id="lab2PickerWall" style="max-height:180px;margin-top:0;"></div></div>
+            <div class="img-thumbs" id="lab2Thumbs" style="margin-top:8px;"></div>
+            <div class="lab2-note"><i class="ti ti-lock"></i> 产品保真：传产品图后自动锁定材质/颜色/领口/袖口/印花等细节</div>
           </div>
-          <div class="lab-side-card">
-            <div class="lab-side-title">推荐使用顺序</div>
-            <div class="workspace-bullet-list" style="margin-top:0;">
-              <div class="workspace-bullet"><i class="ti ti-1"></i><span>先用背景替换或印花文字验证链路。</span></div>
-              <div class="workspace-bullet"><i class="ti ti-2"></i><span>再用模特图、场景图把素材做得更完整。</span></div>
-              <div class="workspace-bullet"><i class="ti ti-3"></i><span>最后用修图、配色、扩图做针对性微调。</span></div>
+          <div class="field"><label>描述您想要的画面</label>
+            <textarea id="lab2Prompt" style="width:100%;min-height:88px;font-size:12px;padding:9px 11px;border:0.5px solid var(--b-3);border-radius:var(--r-md);resize:vertical;font-family:var(--font-sans);box-sizing:border-box;line-height:1.6;" placeholder="例：让模特穿上参考图这件马甲，坐在咖啡馆窗边，午后自然光，随手抓拍感"></textarea>
+            <div style="display:flex;gap:6px;margin-top:6px;align-items:center;">
+              <button class="btn" onclick="document.getElementById('lab2RevFile').click()" style="font-size:11px;"><i class="ti ti-wand"></i>传图反推提示词</button>
+              <input type="file" id="lab2RevFile" accept="image/*" style="display:none" onchange="lab2ReverseFromFile(event)" />
+              <span id="lab2RevStatus" style="font-size:10px;color:var(--text-3);"></span>
             </div>
           </div>
+          <div class="field"><label><i class="ti ti-bulb" style="font-size:11px;color:#BA7517"></i> AI 推荐场景光影</label>
+            <div style="display:flex;gap:6px;"><input id="lab2SceneStyle" placeholder="一句话描述风格，如：南法庭院度假感" style="flex:1;font-size:12px;padding:7px 10px;border:0.5px solid var(--b-3);border-radius:var(--r-md);font-family:var(--font-sans);" /><button class="btn" onclick="lab2SuggestScenes()" style="flex:0 0 auto;"><i class="ti ti-sparkles"></i>推荐</button></div>
+            <div id="lab2SceneChips" style="margin-top:6px;"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div class="field" style="flex:1;"><label>成像风格</label><select id="lab2Style"><option value="ugc">真实种草感（iPhone 抓拍）</option><option value="studio">商业精修感（棚拍）</option></select></div>
+            <div class="field" style="flex:0 0 90px;"><label>比例</label><select id="lab2Ratio"><option>3:4</option><option>1:1</option><option>9:16</option><option>4:3</option><option>16:9</option></select></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div class="field" style="flex:0 0 90px;"><label>数量</label><select id="lab2Count" onchange="updateLab2Cost()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+            <div class="field" style="flex:1;"><label>模式</label><select id="lab2Mode"><option value="variants">多变体·挑图</option><option value="series">连贯组图·发笔记</option></select></div>
+          </div>
+          <button class="btn pri full" id="lab2Gen" onclick="runLab2Generate()"><i class="ti ti-sparkles"></i>立即生成</button>
+          <div style="text-align:center;font-size:11px;color:var(--text-3);margin-top:6px;">预计消耗 <b id="lab2Cost" style="color:var(--text);">7.1</b> 积分 · 结果自动存入本地素材库</div>
+          <div id="lab2Out" style="margin-top:10px;"></div>
+        </div>
+        <div class="lab2-panel">
+          <div class="lab2-title"><i class="ti ti-photo-star"></i>输出画廊 <span id="galCount" style="font-size:10px;font-weight:400;color:var(--text-3);margin-left:4px;"></span></div>
+          <div class="lab2-note" style="margin:0 0 10px;"><i class="ti ti-device-floppy"></i> 所有生成结果已自动保存到本地素材库（09_AI_Generated），永不过期</div>
+          <div id="galMain"></div>
+          <div class="gal-wall" id="galWall"></div>
         </div>
       </div>
+      <div style="font-size:13px;font-weight:600;margin:20px 0 8px;display:flex;align-items:center;gap:6px;"><i class="ti ti-tools"></i>模板工具<span style="font-size:10px;font-weight:400;color:var(--text-3);">固定参数的高级功能入口</span></div>
+      <div class="preset-bar" id="labPresetBar" style="margin-bottom:10px;"></div>
+      <div class="lab-mini-tools" id="labMiniTools"></div>
+      <div class="lab-detail" id="labDetail"></div>
     </div>
   </div>
 </div>
+
 
 <!-- ════════════ 爆款页（分析+诊断）════════════ -->
 <div class="page" id="page-trending">
@@ -2051,6 +2085,20 @@ linear-gradient(#F5F1EA,#F5F1EA) center center / 100% 4px no-repeat;}
           <span class="radar-status" id="radarTrendStatus"></span>
         </div>
         <div id="radarTrendList"></div>
+      </div>
+
+      <div class="home-section">
+        <div class="home-section-head">
+          <div>
+            <div class="home-section-title">抖音热榜</div>
+            <div class="home-section-copy">TikHub 实时抖音热搜 TOP50。点「借势写文案」把热词直接带进创作。</div>
+          </div>
+        </div>
+        <div class="radar-toolbar">
+          <button class="btn" onclick="radarLoadDouyinHot()"><i class="ti ti-brand-tiktok"></i>拉取抖音热榜</button>
+          <span class="radar-status" id="radarDyStatus"></span>
+        </div>
+        <div id="radarDyList"></div>
       </div>
     </div>
 
@@ -2833,7 +2881,7 @@ function radarRenderHot(list){
         <div class="radar-stats"><span>7日新增赞 <b>${escapeHTML(String(a.addLikeCount||'-'))}</b></span><span>互动 <b>${escapeHTML(String(a.addInteractiveount||a.interactiveCount||'-'))}</b></span></div>
       </div>
       <div class="radar-actions">
-        ${url?`<a class="radar-act" href="${escapeAttr(safeURL(url))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>原文</a>`:''}
+        ${url?`<a class="radar-act" href="${escapeAttr(safeURL(url))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>原文</a>`:''}${url?`<button class="radar-act" style="flex:0 0 auto;padding:7px 11px;" onclick="doCopy(this,'${escapeAttr(url)}')" title="复制链接"><i class="ti ti-copy"></i></button>`:''}
         ${url?`<button class="radar-act pri" onclick="radarToSameStyle('${escapeAttr(url)}')"><i class="ti ti-wand"></i>同款创作</button>`:''}
       </div>
     </div>`;
@@ -2861,7 +2909,7 @@ async function radarSearch(more){
           <div class="radar-stats"><span>赞 <b>${radarNum(w.workLikedCount)}</b></span><span>藏 <b>${radarNum(w.workCollectedCount)}</b></span><span>评 <b>${radarNum(w.workCommentsCount)}</b></span></div>
         </div>
         <div class="radar-actions">
-          ${url?`<a class="radar-act" href="${escapeAttr(safeURL(url))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>原文</a>`:''}
+          ${url?`<a class="radar-act" href="${escapeAttr(safeURL(url))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>原文</a>`:''}${url?`<button class="radar-act" style="flex:0 0 auto;padding:7px 11px;" onclick="doCopy(this,'${escapeAttr(url)}')" title="复制链接"><i class="ti ti-copy"></i></button>`:''}
           ${url?`<button class="radar-act pri" onclick="radarToSameStyle('${escapeAttr(url)}')"><i class="ti ti-wand"></i>同款创作</button>`:''}
         </div>
       </div>`;
@@ -2874,6 +2922,25 @@ async function radarSearch(more){
     if(!more)grid.innerHTML=`<div class="radar-empty">搜索失败：${escapeHTML(err.message||'未知错误')}</div>`;
     else alert(err.message||'加载更多失败');
   }
+}
+async function radarLoadDouyinHot(){
+  const box=document.getElementById('radarDyList'),st=document.getElementById('radarDyStatus');
+  if(!box)return;
+  box.innerHTML='<div class="radar-empty">拉取抖音热榜中...</div>';
+  try{
+    const res=await callAPI('/api/radar/douyin-hot',{},{timeoutMs:60000});
+    if(!res?.ok)throw new Error(res?.error||'获取失败');
+    const list=(res.data?.list||[]).filter(w=>!w.pinned).slice(0,30);
+    if(st)st.textContent=`TOP ${list.length} · ${new Date().toLocaleTimeString()}`;
+    box.innerHTML=list.map((w,i)=>`<div class="radar-trend-item" style="padding:9px 14px;margin-bottom:7px;">
+      <div class="radar-trend-rank">${i+1}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="radar-trend-kw" style="margin-bottom:2px;">${escapeHTML(w.word)}</div>
+        <div style="font-size:10px;color:var(--text-3);">热度 ${radarNum(w.hotValue)}${w.videoCount?` · 视频 ${radarNum(w.videoCount)}`:''}</div>
+      </div>
+      <button class="radar-act" style="flex:0 0 auto;padding:6px 12px;" onclick="radarTrendToCopy('${escapeAttr(w.word)}')"><i class="ti ti-pencil"></i>借势写文案</button>
+    </div>`).join('')||'<div class="radar-empty">暂无数据</div>';
+  }catch(err){box.innerHTML=`<div class="radar-empty">加载失败：${escapeHTML(err.message)}</div>`;}
 }
 async function radarLoadTrending(){
   const box=document.getElementById('radarTrendList'),st=document.getElementById('radarTrendStatus');
@@ -2970,7 +3037,7 @@ function goSub(s){
   document.querySelectorAll('#page-produce .subtab').forEach(el=>el.classList.remove('active'));
   document.getElementById('sub-'+s).classList.add('active');
   document.querySelector(`#page-produce .subtab[data-sub="${s}"]`).classList.add('active');
-  if(s==='imageLab'){refreshLabBackendStatus();renderLabHistory();}
+  if(s==='imageLab'){refreshLabBackendStatus();renderLabMiniTools();renderGallery();updateLab2Cost();}
 }
 function goSub2(s){
   const page=document.getElementById('page-trending');
@@ -3464,7 +3531,7 @@ function runTrendParse(){
   const note=document.getElementById('parseNote').value.trim();
   checkBackend().then(online=>{
     if(!online)throw new Error('后端未启动');
-    return callAPI('/api/parse-link',{url},{timeoutMs:30000});
+    return callAPI('/api/parse-link',{url,deep:document.getElementById('ssDeepParse')?.checked||false},{timeoutMs:45000});
   }).then(res=>{
     if(!res?.ok)throw new Error(res?.error||'解析失败');
     const isVideo=['抖音','视频号'].includes(res.platform);
@@ -3571,7 +3638,7 @@ async function refreshSSVideoTask(silent=false){
   try{
     const res=await callAPI('/api/video/task',{taskId:ssVideoTask.taskId},{timeoutMs:60000});
     if(res?.ok&&res.data){
-      ssVideoTask={...ssVideoTask,...res.data};
+      ssVideoTask={...ssVideoTask,...res.data};if(ssVideoTask.url&&!ssVideoTask._histSaved){ssVideoTask._histSaved=true;if(typeof pushLabHistory==='function')pushLabHistory({type:'video',tool:'video',label:'AI 视频生成',mode:'真实结果',ratio:'9:16',url:ssVideoTask.url,ts:Date.now()});if(typeof renderGallery==='function')renderGallery(0);}
       if(window._ssLastRenderArgs)renderSSOutputV9(...window._ssLastRenderArgs);
     }else if(!silent){
       alert(res?.error||'视频状态查询失败');
@@ -3718,6 +3785,168 @@ function renderSSInsightPanel(){
   `;
 }
 
+async function ssFetchComments(){
+  const box=document.getElementById('ssCommentsBox');
+  if(!box||!ssInputData?.url)return;
+  box.innerHTML='<div style="font-size:11px;color:var(--text-3);"><div class="spinner" style="width:12px;height:12px;border-width:1.5px;display:inline-block;margin-right:6px;vertical-align:-2px;"></div>抓取评论区中...</div>';
+  try{
+    const res=await callAPI('/api/radar/xhs-comments',{url:ssInputData.finalUrl||ssInputData.url},{timeoutMs:60000});
+    if(!res?.ok)throw new Error(res?.error||'抓取失败');
+    const comments=res.data?.comments||[];
+    if(!comments.length)throw new Error('没有抓到评论');
+    ssInputData.comments=comments;
+    box.innerHTML=`<div style="background:var(--bg-2);border-radius:10px;padding:10px 12px;">
+      <div style="font-size:11px;font-weight:600;margin-bottom:6px;"><i class="ti ti-messages"></i> 已抓取 ${comments.length} 条评论（按点赞排序），将自动喂给文案生成</div>
+      ${comments.slice(0,5).map(c=>`<div style="font-size:11px;color:var(--text-2);margin:3px 0;line-height:1.5;">💬 ${escapeHTML(String(c.content).slice(0,60))}${c.likes?` <span style="color:var(--text-3);">赞${c.likes}</span>`:''}</div>`).join('')}
+    </div>`;
+  }catch(err){
+    box.innerHTML=`<div style="font-size:11px;color:var(--warning-text);">评论抓取失败：${escapeHTML(err.message)} <button class="copy-mini" onclick="ssFetchComments()">重试</button></div>`;
+  }
+}
+/* ════════════════ ③ 爆款同款图 ════════════════ */
+let ssImgRefs=[],ssImgResults=[],ssImgLocal=[];
+function ssImgSyncCover(){
+  const el=document.getElementById('ssImgCover');if(!el)return;
+  const c=ssInputData?.previewImage||ssInputData?.cover||'';
+  el.innerHTML=c
+    ?`<img src="${escapeAttr(c)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block;" />`
+    :'<span style="font-size:10px;color:var(--text-3);padding:6px;text-align:center;">先在①解析爆款链接</span>';
+  const st=document.getElementById('ss-stepImg-status');
+  if(st&&c){st.textContent='已带入爆款封面';}
+}
+function ssImgRenderRefs(){
+  const w=document.getElementById('ssImgRefThumbs');if(!w)return;
+  w.innerHTML=ssImgRefs.map((img,i)=>`<div class="img-thumb"><img src="${escapeAttr(img.dataUrl)}" /><span class="img-thumb-x" onclick="ssImgRefs.splice(${i},1);ssImgRenderRefs()">×</span></div>`).join('');
+  const c=document.getElementById('ssImgRefCount');if(c)c.textContent=ssImgRefs.length?` · 已传 ${ssImgRefs.length} 张`:'';
+}
+function ssImgAddFiles(e){
+  Array.from(e.target.files).forEach(f=>{
+    if(ssImgRefs.length>=6)return;
+    const r=new FileReader();r.onload=()=>{ssImgRefs.push({dataUrl:r.result,name:f.name});ssImgRenderRefs();};r.readAsDataURL(f);
+  });e.target.value='';
+}
+async function ssImgReverse(){
+  const cover=ssInputData?.previewImage||ssInputData?.cover||'';
+  if(!cover){alert('请先在①解析爆款链接（需要有封面图）');return false;}
+  const out=document.getElementById('ssImgOut');
+  if(out)out.innerHTML='<div style="font-size:11px;color:var(--text-3);"><div class="spinner" style="width:12px;height:12px;border-width:1.5px;display:inline-block;margin-right:6px;vertical-align:-2px;"></div>AI 反推爆款构图/光线/氛围中...</div>';
+  try{
+    const res=await callAPI('/api/image/reverse-prompt',{imageUrl:cover},{timeoutMs:90000});
+    if(!res?.ok)throw new Error(res?.error||'反推失败');
+    const ta=document.getElementById('ssImgPrompt');
+    if(ta)ta.value=res.data.prompt||'';
+    if(out)out.innerHTML='<div style="font-size:11px;color:var(--success);">✓ 已反推爆款风格，可修改后点「生成同款图」</div>';
+    return true;
+  }catch(err){
+    if(out)out.innerHTML=`<div style="font-size:11px;color:var(--warning-text);">反推失败：${escapeHTML(err.message)}</div>`;
+    return false;
+  }
+}
+async function ssImgGenerate(){
+  if(!ssImgRefs.length){alert('请先上传你的产品图');return;}
+  const ta=document.getElementById('ssImgPrompt');
+  let stylePrompt=(ta?.value||'').trim();
+  if(!stylePrompt){
+    const ok=await ssImgReverse();
+    if(!ok)return;
+    stylePrompt=(ta?.value||'').trim();
+    if(!stylePrompt)return;
+  }
+  const out=document.getElementById('ssImgOut');
+  const count=parseInt(document.getElementById('ssImgCount')?.value||'1',10)||1;
+  if(out)out.innerHTML=`<div style="font-size:12px;color:var(--text-2);padding:10px;background:var(--bg-2);border-radius:10px;"><div class="spinner" style="width:14px;height:14px;border-width:1.5px;display:inline-block;margin-right:8px;vertical-align:-3px;"></div>生成同款图（${count} 张，约 1-3 分钟）...</div>`;
+  try{
+    const extra='Recreate the following composition, lighting, scene and mood: '+stylePrompt+' IMPORTANT: the model must wear the exact garment from the reference product images, not the clothing described above.';
+    const res=await callAPI('/api/generate-image',{
+      tool:'free',
+      extraDesc:extra,
+      imageBase64List:ssImgRefs.map(r=>r.dataUrl),
+      ratio:document.getElementById('ssImgRatio')?.value||'3:4',
+      count,
+      genMode:'variants',
+      photoStyle:document.getElementById('ssImgStyle')?.value||'ugc',
+    },{timeoutMs:300000});
+    if(!res?.ok)throw new Error(res?.error||'生成失败');
+    ssImgResults=res.imageList||[res.imageData];
+    ssImgLocal=res.local||[];
+    const show=ssImgLocal.length?ssImgLocal:ssImgResults;
+    if(out)out.innerHTML=`<div style="font-size:12px;color:#085041;background:#E7F7EF;border-radius:10px;padding:8px 10px;margin-bottom:8px;"><i class="ti ti-check"></i> 生成完成 ${show.length} 张，已自动存入素材库与画廊</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">${show.map((u,i)=>`<div style="border:0.5px solid var(--b-3);border-radius:10px;padding:6px;background:#fff;"><img src="${escapeAttr(u)}" style="width:100%;border-radius:6px;display:block;" /><div style="display:flex;gap:4px;margin-top:6px;"><a class="copy-mini" style="flex:1;justify-content:center;" href="${escapeAttr(u)}" download target="_blank" rel="noopener"><i class="ti ti-download"></i></a><button class="copy-mini" style="flex:2;justify-content:center;" onclick="labImageToCopy('${escapeAttr(u)}')"><i class="ti ti-pencil"></i>写文案</button></div></div>`).join('')}</div>`;
+    const st=document.getElementById('ss-stepImg-status');if(st)st.textContent='已生成 '+show.length+' 张';
+    document.getElementById('ss-stepImg')?.classList.add('done');
+    if(typeof renderGallery==='function')renderGallery(0);
+  }catch(err){
+    if(out)out.innerHTML=`<div style="font-size:12px;color:#A32D2D;background:#FCEBEB;border-radius:10px;padding:10px;"><i class="ti ti-alert-circle"></i> ${escapeHTML(err.message||'生成失败')} <button class="btn" style="margin-left:8px;font-size:11px;" onclick="ssImgGenerate()">重试</button></div>`;
+  }
+}
+
+/* ════════════════ ⑥ 分发 · 发布包导出 ════════════════ */
+function ssExportData(){
+  const v=(window._ssVersions||[])[window._ssActiveVer];
+  if(!v)return null;
+  let tags=v.tags||'';
+  if(Array.isArray(tags))tags=tags.map(t=>'#'+String(t).replace(/^#/,'')).join(' ');
+  return {v,tags:String(tags),plat:window._ssPlatName||'平台'};
+}
+function ssCopyField(kind,btn){
+  const d=ssExportData();
+  if(!d){alert('请先在④生成文案');return;}
+  const map={title:d.v.title||'',content:d.v.content||'',tags:d.tags,all:(d.v.title||'')+'\n\n'+(d.v.content||'')+'\n\n'+d.tags};
+  doCopy(btn,map[kind]||'');
+}
+function ssExportPackage(){
+  const d=ssExportData();
+  if(!d){alert('请先在④生成文案');return;}
+  const imgs=(ssImgLocal.length?ssImgLocal:ssImgResults)||[];
+  const lines=[
+    `# 发布包 · ${d.plat} · ${new Date().toLocaleString('zh-CN')}`,'',
+    '## 标题','',d.v.title||'','',
+    '## 正文','',d.v.content||'','',
+    '## 话题标签','',d.tags,'',
+    '## 发布建议','',d.v.tip||'按平台高峰时段发布（小红书 12:00/19:00-22:00）','',
+  ];
+  if(imgs.length){lines.push('## 配图（已存本地素材库 09_AI_Generated）','');imgs.forEach((u,i)=>lines.push(`${i+1}. ${u.startsWith('/')?location.origin+u:u}`));lines.push('');}
+  if(ssVideoTask?.url){lines.push('## 视频','',ssVideoTask.url,'');}
+  lines.push('## 发布清单','','- [ ] 标题已贴','- [ ] 正文已贴（检查敏感词）','- [ ] 标签已加','- [ ] 图片/视频已上传','- [ ] 选择发布时间');
+  const blob=new Blob([lines.join('\n')],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`发布包_${d.plat}_${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+  const info=document.getElementById('ssExportInfo');
+  if(info)info.innerHTML='<div style="font-size:11px;color:var(--success);">✓ 发布包已下载（含文案、配图清单、发布检查表）</div>';
+  const st=document.getElementById('ss-step6-status');if(st)st.textContent='已导出';
+  document.getElementById('ss-step6')?.classList.add('done');
+}
+function ssDownloadImgs(){
+  const imgs=(ssImgLocal.length?ssImgLocal:ssImgResults)||[];
+  if(!imgs.length){alert('还没有同款图，先在③生成');return;}
+  imgs.forEach((u,i)=>{
+    const a=document.createElement('a');
+    a.href=u;a.download=`同款图_${i+1}.jpg`;
+    document.body.appendChild(a);a.click();a.remove();
+  });
+  const info=document.getElementById('ssExportInfo');
+  if(info)info.innerHTML=`<div style="font-size:11px;color:var(--success);">✓ 已触发 ${imgs.length} 张图片下载（同时永久保存在素材库 09_AI_Generated）</div>`;
+}
+
+function scrollToStep(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'});}
+function ssToDiagnose(){
+  const v=(window._ssVersions||[])[window._ssActiveVer]||null;
+  goPage('trending');goSub2('diagnose');
+  if(!v)return; // 还没生成文案：当独立诊断入口用
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val;};
+  set('diagTitle',v.title||'');
+  set('diagContent',v.content||'');
+  let tags=v.tags||'';
+  if(Array.isArray(tags))tags=tags.join(', ');
+  else tags=String(tags).trim().split(/\s+/).filter(Boolean).join(', ');
+  set('diagTags',tags);
+  const plat=document.getElementById('diagPlatform');
+  if(plat&&window._ssPlatName){[...plat.options].forEach(o=>{if(o.value===window._ssPlatName||o.text===window._ssPlatName)plat.value=o.value;});}
+  setTimeout(()=>{if(typeof runDiagnose==='function')runDiagnose();document.getElementById('diagOutput')?.scrollIntoView({behavior:'smooth',block:'start'});},250);
+}
+
 function confirmSSInput(mode){
   const resultDiv=document.getElementById('ssInputResult');
   if(mode==='text'){
@@ -3759,7 +3988,7 @@ function confirmSSInput(mode){
     };
     checkBackend().then(online=>{
       if(!online)throw new Error('后端未启动');
-      return callAPI('/api/parse-link',{url},{timeoutMs:30000});
+      return callAPI('/api/parse-link',{url,deep:document.getElementById('ssDeepParse')?.checked||false},{timeoutMs:45000});
     }).then(res=>{
       if(!res?.ok)throw new Error(res?.error||'解析失败');
       const detectedPlat=res.platform||fallbackDetect();
@@ -3776,7 +4005,8 @@ function confirmSSInput(mode){
       const srcBtn=document.querySelector(`#srcPlatGrid .plat-sel-item[data-plat="${platKeyMap[detectedPlat]||'other'}"]`);
       if(srcBtn)selectSrcPlat(srcBtn);
       resultDiv.innerHTML=renderParsedLinkResult(res,url);
-      markReady('真实识别完成');
+      if(detectedPlat==='小红书'){resultDiv.insertAdjacentHTML('beforeend',`<div id="ssCommentsBox" style="margin-top:8px;"><button class="copy-mini" onclick="ssFetchComments()"><i class="ti ti-messages"></i>抓取评论区（真实痛点，喂给文案生成）</button></div>`);}
+      markReady('真实识别完成');if(typeof ssImgSyncCover==='function')ssImgSyncCover();
     }).catch(err=>{
       const detectedPlat=fallbackDetect();
       ssInputData={mode:'link',url,platform:detectedPlat};
@@ -3877,7 +4107,7 @@ function runSSGenerate(){
     showProgress(online);
     if(online){
       return callAPI('/api/generate-samestyle',{
-        sourceContent:{title:ssInputData?.title||'',content:ssInputData?.content||ssInputData?.insights?.recommendedDirection||'',type:ssInputData?.type||'image'},
+        sourceContent:{title:ssInputData?.title||'',content:ssInputData?.content||ssInputData?.description||ssInputData?.insights?.recommendedDirection||'',type:ssInputData?.type||'image',comments:(ssInputData?.comments||[]).slice(0,8)},
         platform:ssDstPlat,
         product:{name:prodName,feature:prodFeature,tone:prodTone,audience:''},
       }).then(res=>{
@@ -4144,7 +4374,7 @@ function renderSSVersionContent(){
         <span class="platform-badge">${escapeHTML(window._ssPlatName)} · 版本 ${v.key} · ${escapeHTML(v.name)}</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-size:11px;color:var(--text-2);">预测分 <b style="font-size:14px;font-weight:600;color:${sc}">${v.score}</b></span>
-          <button class="copy-mini" onclick="doCopy(this,${JSON.stringify(copyText).replace(/</g,'\\u003c').replace(/'/g,'&#39;')})"><i class="ti ti-copy"></i>复制</button>
+          <button class="copy-mini" onclick="doCopy(this,${JSON.stringify(copyText).replace(/</g,'\\u003c').replace(/'/g,'&#39;')})"><i class="ti ti-copy"></i>复制</button><button class="copy-mini" onclick="ssToDiagnose()" style="background:var(--text);color:#fff;border-color:var(--text);"><i class="ti ti-stethoscope"></i>送诊断</button>
         </div>
       </div>
       <div class="cc-title">${escapeHTML(v.title)}</div>
@@ -4271,19 +4501,19 @@ async function runCG(){
 const LAB_CONFIGS={
   model:{icon:'ti ti-user',color:'#D85A30',engine:'Nano Banana',desc:'上传白底/挂拍服装图，AI 生成不同模特上身效果（Gemini 3 驱动）',
     fields:[{key:'modelType',label:'模特类型',type:'select',options:['亚洲清新','欧美时尚','混血气质','日系少女','韩系都市']},{key:'age',label:'年龄段',type:'select',options:['18-24','25-30','30-35','35-40']},{key:'pose',label:'姿势',type:'select',options:['正面站立','侧身回眸','行走中','靠墙','坐姿','低头看']},{key:'scene',label:'场景',type:'select',options:['工作室纯色','咖啡馆','城市街拍','室内沙发','户外公园','海边度假','高奢背景']}],
-    hasRatio:true,hasCount:true,resultMode:'grid',resultLabels:['正面站立','侧身回眸','45度走动','回头看','坐姿全身','倚靠特写','侧脸细节','背面展示']},
+    isMulti:true,maxImages:6,hasRatio:true,hasCount:true,resultMode:'grid',resultLabels:['正面站立','侧身回眸','45度走动','回头看','坐姿全身','倚靠特写','侧脸细节','背面展示']},
   scene:{icon:'ti ti-camera',color:'#1D9E75',engine:'Nano Banana',desc:'上传商品图，AI 生成多个不同场景的电商展示套图',
     fields:[{key:'package',label:'场景套餐',type:'select',options:['生活方式（默认）','极简电商白底','高奢杂志感','街拍写真','酒店度假','北欧家居','咖啡馆']},{key:'light',label:'光影',type:'select',options:['自然日光','棚拍柔光','黄昏暖光','冷调电影感','戏剧逆光']}],
-    hasRatio:true,hasCount:true,resultMode:'grid',resultLabels:['主图特写','生活场景 1','生活场景 2','细节展示','搭配示例','氛围远景','配色搭配','静物组合','街拍场景']},
+    isMulti:true,maxImages:6,hasRatio:true,hasCount:true,resultMode:'grid',resultLabels:['主图特写','生活场景 1','生活场景 2','细节展示','搭配示例','氛围远景','配色搭配','静物组合','街拍场景']},
   bg:{icon:'ti ti-replace',color:'#378ADD',engine:'Nano Banana / GPT Image 2',desc:'上传任意图片，AI 智能抠图后替换成指定背景',
     fields:[{key:'bgType',label:'背景类型',type:'select',options:['纯色背景','渐变背景','室内场景','户外自然','城市街景','品牌氛围','节日氛围']},{key:'bgColor',label:'主色调',type:'select',options:['奶白/米色','雾粉色','薄荷绿','天蓝色','深邃深色','暖橙黄']},{key:'light',label:'光线',type:'select',options:['自然光','柔光','侧光','逆光（剪影）']}],
-    hasRatio:true,hasCount:false,resultMode:'compare'},
+    isMulti:true,maxImages:6,hasRatio:true,hasCount:false,resultMode:'compare'},
   style:{icon:'ti ti-palette',color:'#D4537E',engine:'Nano Banana',desc:'上传任意图片，一键切换成不同视觉风格调性',
     fields:[{key:'targetStyle',label:'目标风格',type:'select',options:['法式复古','韩系清新','欧美街拍','日系轻熟','高奢大牌感','赛博朋克','油画感','胶片复古','莫兰迪淡彩']},{key:'intensity',label:'迁移强度',type:'select',options:['轻度（保留原图 70%）','中度（推荐）','重度（风格优先）']}],
-    hasRatio:false,hasCount:false,resultMode:'compare'},
+    isMulti:true,maxImages:6,hasRatio:false,hasCount:false,resultMode:'compare'},
   enhance:{icon:'ti ti-wand',color:'#7F77DD',engine:'GPT Image 2 / Gemini',desc:'上传低画质或色差问题图，AI 自动提升画质、修复色差、去除瑕疵',
     fields:[{key:'upscale',label:'画质提升',type:'select',options:['2x（推荐）','4x（极致）','保持原尺寸']},{key:'mode',label:'修图模式',type:'select',options:['商业精修（去瑕疵+提亮）','色差校正','去水印','磨皮美颜','HDR增强']},{key:'output',label:'输出质量',type:'select',options:['高质量 JPG','无损 PNG','WebP（推荐）']}],
-    hasRatio:false,hasCount:false,resultMode:'compare'},
+    isMulti:true,maxImages:6,hasRatio:false,hasCount:false,resultMode:'compare'},
   text:{icon:'ti ti-typography',color:'#BA7517',engine:'Nano Banana',desc:'生成 T 恤印花、产品海报文字、品牌 Logo 等创意文字素材',
     fields:[{key:'designType',label:'设计类型',type:'select',options:['T恤印花','卫衣图案','帆布袋设计','产品海报标题','品牌贴纸','节日横幅']},{key:'textContent',label:'文字内容',type:'text',placeholder:'输入要生成的文字，如 Sunny Day / 春日限定'},{key:'fontStyle',label:'字体风格',type:'select',options:['手写体','哥特体','现代无衬线','复古衬线','涂鸦风','极简细线']},{key:'colorScheme',label:'配色方案',type:'select',options:['莫兰迪柔色','高饱和撞色','黑白极简','金色奢华','马卡龙甜色','深色潮流']}],
     hasRatio:true,hasCount:true,noUpload:true,resultMode:'grid',resultLabels:['方案 A','方案 B','方案 C','方案 D']},
@@ -4295,10 +4525,10 @@ const LAB_CONFIGS={
     hasRatio:true,hasCount:false,resultMode:'compare',isMulti:true,maxImages:3},
   color:{icon:'ti ti-color-swatch',color:'#E0518A',engine:'Nano Banana',desc:'上传一张产品图，AI 生成多套配色版本——同款不同色，不用重新拍摄，直接发社媒',
     fields:[{key:'palette',label:'配色风格',type:'select',options:['莫兰迪柔色','高饱和撞色','马卡龙甜色','黑白灰极简','大地色系','清新冷调']},{key:'keepTexture',label:'保留质感',type:'select',options:['保留原面料质感（推荐）','仅改色块','创意重绘']}],
-    hasRatio:false,hasCount:true,resultMode:'grid',resultLabels:['雾霾蓝','奶油白','豆沙粉','焦糖棕','薄荷绿','藕荷紫','燕麦杏','黛蓝灰']},
+    isMulti:true,maxImages:6,hasRatio:false,hasCount:true,resultMode:'grid',resultLabels:['雾霾蓝','奶油白','豆沙粉','焦糖棕','薄荷绿','藕荷紫','燕麦杏','黛蓝灰']},
   expand:{icon:'ti ti-arrows-maximize',color:'#3DA39A',engine:'Nano Banana',desc:'把任意比例的图片扩展为目标比例，AI 自动补全背景——买家秀随手拍也能变标准封面',
     fields:[{key:'direction',label:'扩展方向',type:'select',options:['四周均匀扩展（推荐）','向上下扩展','向左右扩展','智能识别主体']},{key:'fillStyle',label:'补全风格',type:'select',options:['延续原背景（推荐）','纯色填充','虚化氛围','场景化补全']}],
-    hasRatio:true,hasCount:false,resultMode:'compare'},
+    isMulti:true,maxImages:6,hasRatio:true,hasCount:false,resultMode:'compare'},
 };
 const LAB_NAMES={model:'服装模特图',scene:'商品多场景',bg:'背景替换',style:'风格迁移',enhance:'智能修图',text:'AI 印花文字',batch:'批量生图',merge:'多图融合',color:'AI 配色',expand:'AI 扩图'};
 const RATIO_OPTIONS=[
@@ -4332,35 +4562,49 @@ function getLabHistoryThumb(defaultSrc=''){
 }
 function renderLabHistory(force=false){
   const list=document.getElementById('labHistoryList');if(!list)return;
-  let history=loadLabHistory();
-  if(force&&history.length===0){
-    history=[
-      {tool:'text',label:'AI 印花文字',mode:'真实结果',ratio:'3:4',ts:Date.now()-1000*60*18,thumb:''},
-      {tool:'bg',label:'背景替换',mode:'演示结果',ratio:'1:1',ts:Date.now()-1000*60*54,thumb:''},
-      {tool:'enhance',label:'智能修图',mode:'真实结果',ratio:'原比例',ts:Date.now()-1000*60*60*3,thumb:''},
-    ];
-    saveLabHistory(history);
-  }
+  const history=loadLabHistory().filter(it=>it&&(it.type==='video'?it.url:(Array.isArray(it.images)&&it.images[0])||(it.thumb&&String(it.thumb).startsWith('http'))));
   if(history.length===0){
-    list.innerHTML='<div class="empty-state" style="padding:18px 8px;"><i class="ti ti-clock-hour-4"></i><div class="es-title">还没有图片历史</div><div>完成第一次生成后，这里会保留最近的工具记录。</div></div>';
+    list.innerHTML='<div class="empty-state" style="padding:18px 8px;"><i class="ti ti-clock-hour-4"></i><div class="es-title">还没有生成记录</div><div>完成第一次真实生成后，图片/视频会保留在这里，随时继续创作。</div></div>';
     return;
   }
   const ago=ts=>{const d=Math.max(1,Math.floor((Date.now()-ts)/1000));return d<3600?Math.floor(d/60)+' 分钟前':d<86400?Math.floor(d/3600)+' 小时前':Math.floor(d/86400)+' 天前';};
-  list.innerHTML=history.map(item=>`
-    <div class="lab-history-item">
-      <div class="lab-history-thumb">${item.thumb?`<img src="${escapeAttr(item.thumb)}" alt="${escapeAttr(item.label)}" />`:`<i class="${LAB_CONFIGS[item.tool]?.icon||'ti ti-photo'}"></i>`}</div>
+  list.innerHTML=history.map((item,idx)=>{
+    const isVideo=item.type==='video';
+    const imgs=Array.isArray(item.images)?item.images.filter(u=>String(u).startsWith('http')):[];
+    const first=isVideo?(item.url||''):(imgs[0]||item.thumb||'');
+    const thumbHtml=isVideo
+      ?`<div class="lab-history-thumb" style="display:flex;align-items:center;justify-content:center;background:#111;color:#fff;"><i class="ti ti-player-play"></i></div>`
+      :`<div class="lab-history-thumb">${first?`<img src="${escapeAttr(first)}" alt="" />`:`<i class="${LAB_CONFIGS[item.tool]?.icon||'ti ti-photo'}"></i>`}</div>`;
+    const actions=isVideo
+      ?`<a class="copy-mini" href="${escapeAttr(safeURL(first||'#'))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>打开</a><button class="copy-mini" onclick="doCopy(this,'${escapeAttr(first)}')"><i class="ti ti-copy"></i>复制</button>`
+      :(first&&String(first).startsWith('http')
+        ?`<button class="copy-mini" onclick="labHistoryContinue(${idx})"><i class="ti ti-wand"></i>继续创作</button><button class="copy-mini" onclick="labImageToCopy('${escapeAttr(first)}')"><i class="ti ti-pencil"></i>写文案</button>`
+        :'');
+    return `<div class="lab-history-item">
+      ${thumbHtml}
       <div class="lab-history-info">
-        <div class="lab-history-name">${escapeHTML(item.label)}</div>
-        <div class="lab-history-meta">${escapeHTML(item.mode)} · ${escapeHTML(item.ratio||'默认比例')}<br>${ago(item.ts)}</div>
-        <div class="lab-history-link">可继续沿用这张图往下编辑</div>
+        <div class="lab-history-name">${escapeHTML(item.label||'生成记录')}${imgs.length>1?` <span style="font-size:10px;color:var(--text-3);">+${imgs.length-1} 张</span>`:''}</div>
+        <div class="lab-history-meta">${escapeHTML(item.mode||'真实结果')} · ${escapeHTML(item.ratio||'')} · ${ago(item.ts)}</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;">${actions}</div>
       </div>
-      <span class="lab-history-chip">${escapeHTML((LAB_CONFIGS[item.tool]?.engine||'AI').split('/')[0].trim())}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+function labHistoryContinue(idx){
+  const history=loadLabHistory().filter(it=>it&&(it.type==='video'?it.url:(Array.isArray(it.images)&&it.images[0])||(it.thumb&&String(it.thumb).startsWith('http'))));
+  const item=history[idx];if(!item)return;
+  const imgs=Array.isArray(item.images)?item.images.filter(u=>String(u).startsWith('http')):[];
+  const url=imgs[0]||item.thumb;
+  if(!url||!String(url).startsWith('http')){alert('该记录没有可用的图片链接（可能是早期记录）');return;}
+  goPage('produce');goSub('imageLab');
+  const tool=LAB_CONFIGS[item.tool]?item.tool:'model';
+  openLabTool(tool);
+  labReuseImage(url);
 }
 
 function openLabTool(key){
   if(!LAB_CONFIGS[key])return;
-  labCurrentTool=key;labUploadedImage=null;labBatchImages=[];labMultiImages=[];labSelectedRatio='3:4';
+  labCurrentTool=key;labUploadedImage=null;labBatchImages=[];labMultiImages=[];labSelectedRatio='3:4';renderLabMiniTools();
   const cfg=LAB_CONFIGS[key];
   const d=document.getElementById('labDetail');d.classList.add('show');
 
@@ -4377,7 +4621,9 @@ function openLabTool(key){
     </div>`:''
 
   // 数量选择
-  const countHtml=cfg.hasCount?`<div class="field"><label>生成数量</label><select id="lab-count"><option value="4">4 张</option><option value="6">6 张</option><option value="8">8 张</option></select></div>`:''
+  const countHtml=cfg.hasCount?`<div class="field"><label>生成数量</label><div style="display:flex;gap:6px;"><select id="lab-count" style="flex:1;">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}">${n} 张</option>`).join('')}</select><select id="lab-genmode" style="flex:1;"><option value="variants">多变体·挑图</option><option value="series">连贯组图·发笔记</option></select></div><div style="font-size:10px;color:var(--text-3);margin-top:3px;">每张约 7.1 积分 · 组图风格连贯适合多图笔记</div></div>`:'';
+  const styleHtml=cfg.noUpload?'':`<div class="field"><label>成像风格</label><select id="lab-photostyle"><option value="ugc">真实种草感（iPhone 抓拍 · 去AI化）</option><option value="studio">商业精修感（棚拍大片）</option></select></div>`;
+  const sceneHtml=`<div class="field"><label style="display:flex;align-items:center;gap:4px;"><i class="ti ti-bulb" style="font-size:11px;color:#BA7517"></i>AI 推荐场景光影</label><div style="display:flex;gap:6px;"><input id="labSceneStyle" placeholder="一句话描述风格，如：南法庭院度假感" style="flex:1;font-size:12px;padding:7px 10px;border:0.5px solid var(--b-3);border-radius:var(--r-md);font-family:var(--font-sans);" /><button class="btn" type="button" onclick="labSuggestScenes()" style="flex:0 0 auto;"><i class="ti ti-sparkles"></i>推荐</button></div><div id="labSceneChips" style="margin-top:6px;"></div></div>`;
 
   // 上传区
   let uploadHtml='';
@@ -4385,9 +4631,9 @@ function openLabTool(key){
     uploadHtml=`
       <input type="file" id="labMultiInput" accept="image/*" multiple style="display:none" onchange="labHandleMulti(event)" />
       <div class="img-drop" onclick="document.getElementById('labMultiInput').click()">
-        <i class="ti ti-photo-plus"></i>上传 2-${cfg.maxImages||3} 张图（模特/服装/场景）
+        <i class="ti ti-photo-plus"></i>${key==='merge'?`上传 2-${cfg.maxImages||3} 张图（模特/服装/场景）`:`上传产品图（支持多角度参考，最多 ${cfg.maxImages||6} 张）`}
       </div>
-      <div class="img-thumbs" id="labMultiThumbs" style="margin-top:6px;"></div>`;
+      <div class="img-thumbs" id="labMultiThumbs" style="margin-top:6px;"></div>${key==='merge'?'':`<div style="font-size:10px;color:var(--text-3);margin-top:4px;line-height:1.5;"><i class="ti ti-lock"></i> 产品保真模式：生成时将锁定材质、颜色、领口、袖口、印花等所有细节；上传正面/背面/细节多角度图可进一步提升还原度</div>`}`;
   } else if(cfg.isBatch){
     uploadHtml=`
       <input type="file" id="labBatchInput" accept="image/*" multiple style="display:none" onchange="labHandleBatch(event)" />
@@ -4420,7 +4666,7 @@ function openLabTool(key){
         ${uploadHtml}
         <div style="margin-top:8px">${fieldsHtml}
         <div class="field"><label style="display:flex;align-items:center;gap:4px;"><i class="ti ti-pencil" style="font-size:11px;color:var(--primary)"></i>产品描述补充 <span style="font-weight:400;color:var(--text-3);font-size:10px;">可选，越详细效果越好</span></label><textarea id="lab-extraDesc" placeholder="例：灰色麻花纹针织，宽松版型，V领，七分袖，做旧水洗感面料" style="font-size:12px;padding:8px 10px;border:0.5px solid var(--b-3);border-radius:var(--r-md);width:100%;font-family:var(--font-sans);min-height:64px;resize:vertical;line-height:1.6;box-sizing:border-box;"></textarea></div>
-        ${ratioHtml}${countHtml}</div>
+        ${styleHtml}${sceneHtml}${ratioHtml}${countHtml}</div>
         <button class="btn pri full" id="labGenBtn" onclick="runLabGenerate()" style="margin-top:8px"><i class="ti ti-sparkles"></i>开始生成</button>
         <div id="labGenHint" style="font-size:10px;color:var(--text-3);text-align:center;margin-top:4px;">⚠️ 演示模式</div>
         ${cfg.noUpload?'':`<div class="lab-trust-tip"><b>参考图优先：</b>上传图片后，系统会尽量保留主体款式、颜色、版型和印花，再对背景、场景或质感做调整。</div>`}
@@ -4510,7 +4756,8 @@ function runLabGenerate(){
   if(!cfg)return;
   if(!cfg.noUpload&&!cfg.isBatch&&!cfg.isMulti&&!labUploadedImage){alert('请先上传图片');return;}
   if(cfg.isBatch&&labBatchImages.length===0){alert('请先上传至少一张产品图');return;}
-  if(cfg.isMulti&&labMultiImages.length<2){alert('多图融合至少需要上传 2 张图');return;}
+  if(cfg.isMulti&&labMultiImages.length===0){alert('请先上传至少一张产品图');return;}
+  if(labCurrentTool==='merge'&&labMultiImages.length<2){alert('多图融合至少需要上传 2 张图');return;}
   const btn=document.getElementById('labGenBtn');btn.disabled=true;
   const out=document.getElementById('labOutput');
   const params={};
@@ -4526,9 +4773,9 @@ function runLabGenerate(){
     showProgress(online);
     if(online){
       const extraDesc = (document.getElementById('lab-extraDesc') && document.getElementById('lab-extraDesc').value.trim()) || '';
-      return callAPI('/api/generate-image',{tool:labCurrentTool,params,ratio,imageBase64,imageBase64List,extraDesc}).then(res=>{
+      return callAPI('/api/generate-image',{tool:labCurrentTool,params,ratio,imageBase64,imageBase64List,extraDesc,count:parseInt(document.getElementById('lab-count')?.value||'1',10)||1,genMode:document.getElementById('lab-genmode')?.value||'variants',photoStyle:document.getElementById('lab-photostyle')?.value||'ugc'},{timeoutMs:300000}).then(res=>{
         clearInterval(lt);
-        if(res.ok&&res.imageData){renderLabRealOutput(res.imageData,cfg,ratio);}
+        if(res.ok&&res.imageData){renderLabRealOutput(res.imageList&&res.imageList.length?res.imageList:res.imageData,cfg,ratio);}
         else{console.warn('图片生成失败:',res.error,res.debug);out.innerHTML=`<div style="background:#FCEBEB;border:0.5px solid #F0B5B5;border-radius:var(--r-lg);padding:14px;"><div style="font-size:13px;font-weight:500;color:#A32D2D;margin-bottom:6px;"><i class="ti ti-alert-circle"></i> 真实生成失败</div><div style="font-size:12px;color:#7A3030;line-height:1.6;">${escapeHTML(res.error||'未知错误')}</div><div style="display:flex;gap:6px;margin-top:10px;"><button class="btn pri" onclick="runLabGenerate()"><i class="ti ti-refresh"></i>重新生成</button><button class="btn" onclick="renderLabOutput()"><i class="ti ti-eye"></i>查看演示效果</button></div></div>`;}
       });
     } else {
@@ -4538,12 +4785,219 @@ function runLabGenerate(){
 }
 
 function renderLabRealOutput(imageData,cfg,ratio){
+  const list=Array.isArray(imageData)?imageData:[imageData];
   const out=document.getElementById('labOutput');
-  const imgSrc=imageData.startsWith('http')?imageData:`data:image/png;base64,${imageData}`;
+  const toSrc=u=>u.startsWith('http')?u:`data:image/png;base64,${u}`;
   const refSrc=labUploadedImage?.dataUrl||labMultiImages[0]?.dataUrl||labBatchImages[0]?.dataUrl||'';
   const ratioStyle=ratio==='9:16'?'aspect-ratio:9/16':ratio==='1:1'?'aspect-ratio:1/1':ratio==='16:9'?'aspect-ratio:16/9':ratio==='4:3'?'aspect-ratio:4/3':'aspect-ratio:3/4';
-  out.innerHTML=`<div style="background:linear-gradient(135deg,#E7F7EF,#F7FFFB);border:1px solid var(--success-border);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:12px;color:#085041;"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;"><div style="font-size:13px;font-weight:600;"><i class="ti ti-check"></i> 真实图片生成完成</div><div style="font-size:10px;background:#fff;padding:3px 8px;border-radius:999px;border:0.5px solid var(--success-border);">${escapeHTML(cfg.engine)} · ${ratio}</div></div><div style="font-size:11px;color:#0F6E56;">这张图来自后端真实返回，不是演示占位图。</div></div><div class="ref-compare">${refSrc?`<div class="ref-card"><div class="ref-card-head"><span>参考图</span><span>上传原图</span></div><div class="ref-card-media"><img src="${escapeAttr(refSrc)}" style="aspect-ratio:1/1;object-fit:cover;" alt="参考图" /></div><div class="ref-card-note">这一张会作为主体参考，系统应尽量保留版型、颜色、印花和轮廓。</div></div>`:''}<div class="gen-card"><div class="gen-card-head"><span>生成结果</span><span>${escapeHTML(cfg.engine)} · ${ratio}</span></div><div class="gen-card-media"><div style="${ratioStyle};max-height:560px;overflow:hidden;border-radius:12px;border:1px solid var(--success-border);background:linear-gradient(180deg,#FAFAF7,#F1EFE8);box-shadow:0 10px 24px rgba(29,158,117,0.10);"><img src="${escapeAttr(imgSrc)}" style="width:100%;height:100%;object-fit:contain;display:block;" alt="AI生成图片" /></div></div></div></div><div style="display:flex;gap:6px;margin-top:10px;"><a class="btn full" href="${escapeAttr(imgSrc)}" download="AI生成_${Date.now()}.png"><i class="ti ti-download"></i>下载真实图片</a><button class="btn pri full" onclick="runLabGenerate()"><i class="ti ti-refresh"></i>重新生成</button></div>`;
-  pushLabHistory({tool:labCurrentTool,label:LAB_NAMES[labCurrentTool],mode:'真实结果',ratio,thumb:getLabHistoryThumb(imgSrc),ts:Date.now()});
+  const banner=`<div style="background:linear-gradient(135deg,#E7F7EF,#F7FFFB);border:1px solid var(--success-border);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:12px;color:#085041;"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><div style="font-size:13px;font-weight:600;"><i class="ti ti-check"></i> 真实生成完成 · 共 ${list.length} 张</div><div style="font-size:10px;background:#fff;padding:3px 8px;border-radius:999px;border:0.5px solid var(--success-border);">${escapeHTML(cfg.engine)} · ${ratio}</div></div></div>`;
+  const refHtml=refSrc?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><img src="${escapeAttr(refSrc)}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:0.5px solid var(--b-3);" /><span style="font-size:11px;color:var(--text-2);">参考图 · 系统已尽量保留主体款式与细节</span></div>`:'';
+  const cards=list.map((u,i)=>{const src=toSrc(u);return `<div style="border:0.5px solid var(--b-3);border-radius:12px;padding:8px;background:#fff;"><div style="${ratioStyle};overflow:hidden;border-radius:8px;background:linear-gradient(180deg,#FAFAF7,#F1EFE8);"><img src="${escapeAttr(src)}" style="width:100%;height:100%;object-fit:contain;display:block;" alt="生成 ${i+1}" /></div><div style="display:flex;gap:6px;margin-top:8px;"><a class="btn" style="flex:1;font-size:11px;padding:6px 0;justify-content:center;" href="${escapeAttr(src)}" target="_blank" rel="noopener" download="AI生成_${i+1}.png"><i class="ti ti-download"></i>下载</a><button class="btn pri" style="flex:1.4;font-size:11px;padding:6px 0;justify-content:center;" onclick="labReuseImage('${escapeAttr(u)}')"><i class="ti ti-wand"></i>以此图再创作</button><button class="btn" style="flex:1.2;font-size:11px;padding:6px 0;justify-content:center;" onclick="labImageToCopy('${escapeAttr(u)}')"><i class="ti ti-pencil"></i>写爆款文案</button></div></div>`;}).join('');
+  const gridStyle=list.length===1?'grid-template-columns:minmax(0,520px);justify-content:center;':'grid-template-columns:repeat(auto-fill,minmax(220px,1fr));';
+  out.innerHTML=`${banner}${refHtml}<div style="display:grid;gap:12px;${gridStyle}">${cards}</div><div style="display:flex;gap:6px;margin-top:12px;"><button class="btn pri full" onclick="runLabGenerate()"><i class="ti ti-refresh"></i>重新生成</button></div>`;
+  if(typeof renderGallery==='function')renderGallery(0);pushLabHistory({type:'image',tool:labCurrentTool,label:LAB_NAMES[labCurrentTool],mode:'真实结果 x'+list.length,ratio,images:list.filter(u=>String(u).startsWith('http')),thumb:toSrc(list[0]).startsWith('http')?toSrc(list[0]):'',ts:Date.now()});
+}
+
+function labReuseImage(url){
+  const cfg=LAB_CONFIGS[labCurrentTool]||{};
+  if(cfg.isMulti){
+    const max=cfg.maxImages||6;
+    if(labMultiImages.length>=max)labMultiImages.shift();
+    labMultiImages.push({dataUrl:url,name:'上轮生成结果'});
+    renderLabMultiThumbs();
+  }else{
+    labUploadedImage={dataUrl:url,name:'上轮生成结果'};
+    const p=document.getElementById('labImgPreview');
+    const dz=document.getElementById('labDropZone');
+    if(p){p.style.display='block';p.innerHTML=`<div style="position:relative;border:0.5px solid var(--b-3);border-radius:var(--r-md);overflow:hidden;"><img src="${escapeAttr(url)}" style="width:100%;display:block;max-height:160px;object-fit:cover;" /><span style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;cursor:pointer;" onclick="labRemoveImg()">×</span></div>`;}
+    if(dz)dz.style.display='none';
+  }
+  const btn=document.getElementById('labGenBtn');if(btn)btn.disabled=false;
+  const hint=document.getElementById('labGenHint');if(hint){hint.innerHTML='✓ 已加入参考图，调整参数后点「开始生成」';hint.style.color='var(--success)';}
+  document.getElementById('labDetail')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function labImageToCopy(url){
+  goPage('produce');goSub('sameStyle');
+  if(typeof switchInputMode==='function')switchInputMode('image');
+  ssScreenshots.length=0;
+  ssScreenshots.push({dataUrl:url,name:'图片工坊生成图'});
+  renderSSScreenshotThumbs();
+  confirmSSInput('image');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderLabMiniTools(){
+  const w=document.getElementById('labMiniTools');if(!w)return;
+  w.innerHTML=Object.keys(LAB_CONFIGS).map(k=>{
+    const c=LAB_CONFIGS[k];
+    return `<span class="lab-mini-tool${labCurrentTool===k?' active':''}" onclick="openLabTool('${k}')" title="${escapeAttr(c.desc||'')}"><i class="${c.icon}" style="color:${c.color}"></i>${LAB_NAMES[k]}</span>`;
+  }).join('');
+}
+/* ════════════════ 图片工坊 2.0：自由编辑 + 输出画廊 ════════════════ */
+let lab2Refs=[],galItems=[],galSel=0;
+function updateLab2Cost(){
+  const n=parseInt(document.getElementById('lab2Count')?.value||'1',10)||1;
+  const el=document.getElementById('lab2Cost');if(el)el.textContent=(n*7.1).toFixed(1);
+}
+function renderLab2Refs(){
+  const w=document.getElementById('lab2Thumbs');if(!w)return;
+  w.innerHTML=lab2Refs.map((img,i)=>`<div class="img-thumb"><img src="${escapeAttr(img.dataUrl)}" /><span class="img-thumb-x" onclick="lab2Refs.splice(${i},1);renderLab2Refs()">×</span></div>`).join('');
+  const c=document.getElementById('lab2RefCount');if(c)c.textContent=lab2Refs.length+'/6';
+}
+function lab2AddFiles(e){
+  Array.from(e.target.files).forEach(f=>{
+    if(lab2Refs.length>=6)return;
+    const r=new FileReader();r.onload=()=>{lab2Refs.push({dataUrl:r.result,name:f.name});renderLab2Refs();};r.readAsDataURL(f);
+  });e.target.value='';
+}
+async function lab2AddFromUrl(url){
+  if(lab2Refs.length>=6){alert('参考图最多 6 张');return;}
+  try{
+    const blob=await (await fetch(url)).blob();
+    const dataUrl=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob);});
+    lab2Refs.push({dataUrl,name:'作品库'});renderLab2Refs();
+    const hint=document.getElementById('lab2Out');
+    if(hint)hint.innerHTML='<div style="font-size:11px;color:var(--success);padding:6px 0;"><i class="ti ti-check"></i> 已加入参考图，描述新画面后点「立即生成」继续迭代</div>';
+  }catch(e){alert('读取图片失败：'+e.message);}
+}
+function toggleGalPicker(){
+  const p=document.getElementById('lab2Picker');if(!p)return;
+  if(p.style.display==='none'){
+    p.style.display='block';
+    const wall=document.getElementById('lab2PickerWall');
+    const imgs=galItems.filter(g=>g.kind==='image');
+    wall.innerHTML=imgs.length
+      ?imgs.map(g=>`<div class="gal-thumb" onclick="lab2AddFromUrl('${escapeAttr(g.src)}');document.getElementById('lab2Picker').style.display='none'"><img src="${escapeAttr(g.src)}" loading="lazy" /></div>`).join('')
+      :'<div style="grid-column:1/-1;font-size:11px;color:var(--text-3);padding:10px;text-align:center;">作品库还是空的，先生成一张吧</div>';
+  }else p.style.display='none';
+}
+async function lab2ReverseFromFile(e){
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const dataUrl=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f);});
+  lab2Reverse({imageBase64:dataUrl});
+}
+async function lab2Reverse(body){
+  const st=document.getElementById('lab2RevStatus');if(st)st.textContent='AI 分析图片中...';
+  try{
+    const res=await callAPI('/api/image/reverse-prompt',body,{timeoutMs:90000});
+    if(!res?.ok)throw new Error(res?.error||'反推失败');
+    const ta=document.getElementById('lab2Prompt');
+    if(ta)ta.value=res.data.prompt+(res.data.promptZh?'\n（'+res.data.promptZh+'）':'');
+    if(st)st.textContent='✓ 提示词已填入，可修改后生成';
+  }catch(err){if(st)st.textContent='反推失败：'+(err.message||'未知错误');}
+}
+function lab2SuggestScenes(){
+  const style=(document.getElementById('lab2SceneStyle')?.value||'').trim();
+  const box=document.getElementById('lab2SceneChips');
+  if(!style){alert('先用一句话描述想要的风格，例如：南法庭院度假感');return;}
+  if(box)box.innerHTML='<span style="font-size:11px;color:var(--text-3);">AI 设计方案中...</span>';
+  callAPI('/api/image/suggest-scenes',{productDesc:(document.getElementById('lab2Prompt')?.value||'').slice(0,200),styleDesc:style},{timeoutMs:90000}).then(res=>{
+    if(!res?.ok)throw new Error(res?.error||'推荐失败');
+    const scenes=res.data?.scenes||[];window._lab2Scenes=scenes;
+    if(box)box.innerHTML=scenes.map((sc,i)=>`<span onclick="lab2ApplyScene(${i})" title="${escapeAttr(sc.prompt||'')}" style="cursor:pointer;font-size:11px;border:0.5px solid var(--b-3);border-radius:999px;padding:4px 10px;display:inline-block;margin:0 6px 6px 0;background:#fff;">✨ ${escapeHTML(sc.name)}</span>`).join('');
+  }).catch(err=>{if(box)box.innerHTML=`<span style="font-size:11px;color:var(--warning-text);">${escapeHTML(err.message)}</span>`;});
+}
+function lab2ApplyScene(i){
+  const sc=(window._lab2Scenes||[])[i];if(!sc)return;
+  const ta=document.getElementById('lab2Prompt');
+  if(ta)ta.value=(ta.value?ta.value+'\n':'')+'【'+sc.name+'】'+(sc.prompt||'');
+}
+function runLab2Generate(){
+  const promptTxt=(document.getElementById('lab2Prompt')?.value||'').trim();
+  if(!promptTxt&&lab2Refs.length===0){alert('请描述画面或上传参考图');return;}
+  const btn=document.getElementById('lab2Gen');btn.disabled=true;
+  const out=document.getElementById('lab2Out');
+  const count=parseInt(document.getElementById('lab2Count')?.value||'1',10)||1;
+  out.innerHTML=`<div style="font-size:12px;color:var(--text-2);padding:10px;background:var(--bg-2);border-radius:10px;"><div class="spinner" style="width:14px;height:14px;border-width:1.5px;display:inline-block;margin-right:8px;vertical-align:-3px;"></div>生成中（${count} 张，约 1-3 分钟，请勿关闭页面）...</div>`;
+  callAPI('/api/generate-image',{
+    tool:'free',
+    extraDesc:promptTxt,
+    imageBase64List:lab2Refs.map(r=>r.dataUrl),
+    ratio:document.getElementById('lab2Ratio')?.value||'3:4',
+    count,
+    genMode:document.getElementById('lab2Mode')?.value||'variants',
+    photoStyle:document.getElementById('lab2Style')?.value||'ugc',
+  },{timeoutMs:300000}).then(res=>{
+    if(!res?.ok)throw new Error(res?.error||'生成失败');
+    out.innerHTML=`<div style="font-size:12px;color:#085041;background:#E7F7EF;border-radius:10px;padding:10px;"><i class="ti ti-check"></i> 生成完成 ${res.imageList?.length||1} 张，已存入右侧画廊和本地素材库</div>`;
+    renderGallery(0);
+  }).catch(err=>{
+    out.innerHTML=`<div style="font-size:12px;color:#A32D2D;background:#FCEBEB;border-radius:10px;padding:10px;"><i class="ti ti-alert-circle"></i> ${escapeHTML(err.message||'生成失败')} <button class="btn" style="margin-left:8px;font-size:11px;" onclick="runLab2Generate()">重试</button></div>`;
+  }).finally(()=>{btn.disabled=false;});
+}
+async function renderGallery(selectIdx){
+  const wall=document.getElementById('galWall');if(!wall)return;
+  let recs=[];
+  try{const res=await getAPI('/api/gallery/list',{timeoutMs:15000});recs=res?.data||[];}catch(e){}
+  const items=[];
+  recs.forEach(r=>{(r.files||[]).forEach((f,i)=>{items.push({kind:'image',src:'/gallery/'+f,rec:r,fi:i});});});
+  try{
+    loadLabHistory().filter(h=>h&&h.type==='video'&&h.url).forEach(h=>{
+      items.push({kind:'video',src:h.url,rec:{id:'v'+h.ts,ts:h.ts,tool:'video',prompt:h.label||'AI 视频',engine:'seedance'},fi:0});
+    });
+  }catch(e){}
+  items.sort((a,b)=>(b.rec.ts||0)-(a.rec.ts||0));
+  galItems=items;
+  const cnt=document.getElementById('galCount');if(cnt)cnt.textContent=items.length?('共 '+items.length+' 个作品'):'';
+  if(typeof selectIdx==='number')galSel=selectIdx;
+  if(galSel>=items.length)galSel=0;
+  wall.innerHTML=items.map((g,i)=>`<div class="gal-thumb${i===galSel?' sel':''}" onclick="selectGal(${i})">${g.kind==='video'?'<div class="gal-vid"><i class="ti ti-player-play"></i></div>':`<img src="${escapeAttr(g.src)}" loading="lazy" />`}</div>`).join('');
+  renderGalMain();
+}
+function selectGal(i){
+  galSel=i;
+  document.querySelectorAll('#galWall .gal-thumb').forEach((el,j)=>el.classList.toggle('sel',j===i));
+  renderGalMain();
+}
+function renderGalMain(){
+  const main=document.getElementById('galMain');if(!main)return;
+  const g=galItems[galSel];
+  if(!g){main.innerHTML='<div class="empty-state" style="padding:30px 10px;"><i class="ti ti-photo"></i><div class="es-title">还没有作品</div><div>左侧生成的图片和视频会出现在这里</div></div>';return;}
+  const d=new Date(g.rec.ts);
+  const dateStr=d.toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const toolName=g.rec.tool==='free'?'自由编辑':(g.rec.tool==='video'?'AI 视频':(LAB_NAMES[g.rec.tool]||g.rec.tool));
+  const nav=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><button class="btn" style="font-size:11px;padding:4px 10px;" onclick="selectGal(Math.max(0,galSel-1))" ${galSel===0?'disabled':''}><i class="ti ti-chevron-left"></i></button><span style="font-size:11px;color:var(--text-3);">${galSel+1} / ${galItems.length}</span><button class="btn" style="font-size:11px;padding:4px 10px;" onclick="selectGal(Math.min(galItems.length-1,galSel+1))" ${galSel>=galItems.length-1?'disabled':''}><i class="ti ti-chevron-right"></i></button></div>`;
+  const media=g.kind==='video'
+    ?`<video class="gal-main-img" src="${escapeAttr(g.src)}" controls></video>`
+    :`<img class="gal-main-img" src="${escapeAttr(g.src)}" />`;
+  const meta=`<div class="gal-meta"><b>${escapeHTML(toolName)}</b>${g.rec.engine?' · '+escapeHTML(g.rec.engine):''} · ${dateStr}${g.rec.prompt?'<br>'+escapeHTML(String(g.rec.prompt).slice(0,160)):''}</div>`;
+  const acts=g.kind==='video'
+    ?`<div class="gal-actions"><a class="btn" href="${escapeAttr(safeURL(g.src))}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>打开视频</a><button class="btn" onclick="doCopy(this,'${escapeAttr(g.src)}')"><i class="ti ti-copy"></i>复制链接</button><button class="btn" onclick="galDelete('${escapeAttr(g.rec.id)}')" style="color:#A32D2D;"><i class="ti ti-trash"></i>删除</button></div>`
+    :`<div class="gal-actions"><a class="btn" href="${escapeAttr(g.src)}" download><i class="ti ti-download"></i>下载</a><button class="btn pri" onclick="lab2AddFromUrl('${escapeAttr(g.src)}')"><i class="ti ti-wand"></i>迭代修改</button><button class="btn" onclick="labImageToCopy('${escapeAttr(g.src)}')"><i class="ti ti-pencil"></i>写文案</button><button class="btn" onclick="lab2Reverse({imageUrl:'${escapeAttr(g.src)}'})"><i class="ti ti-zoom-question"></i>反推提示词</button><button class="btn" onclick="galDelete('${escapeAttr(g.rec.id)}')" style="color:#A32D2D;"><i class="ti ti-trash"></i>删除</button></div>`;
+  main.innerHTML=nav+media+meta+acts;
+}
+async function galDelete(id){
+  if(String(id).startsWith('v')){
+    if(!confirm('删除这条视频记录？'))return;
+    const h=loadLabHistory().filter(x=>!(x&&x.type==='video'&&'v'+x.ts===id));
+    saveLabHistory(h);renderGallery(0);return;
+  }
+  if(!confirm('删除这条作品记录及本地文件？'))return;
+  try{
+    const res=await callAPI('/api/gallery/delete',{id},{timeoutMs:15000});
+    if(!res?.ok)throw new Error(res?.error||'删除失败');
+    renderGallery(0);
+  }catch(e){alert(e.message);}
+}
+
+function labSuggestScenes(){
+  const styleEl=document.getElementById('labSceneStyle');
+  const box=document.getElementById('labSceneChips');
+  const style=(styleEl&&styleEl.value.trim())||'';
+  if(!style){alert('先用一句话描述想要的风格，例如：南法庭院度假感 / 清冷胶片感');return;}
+  const productDesc=(document.getElementById('lab-extraDesc')&&document.getElementById('lab-extraDesc').value.trim())||'';
+  if(box)box.innerHTML='<span style="font-size:11px;color:var(--text-3);"><i class="ti ti-loader-2"></i> AI 设计方案中...</span>';
+  callAPI('/api/image/suggest-scenes',{productDesc,styleDesc:style},{timeoutMs:60000}).then(res=>{
+    if(!res?.ok)throw new Error(res?.error||'推荐失败');
+    const scenes=res.data?.scenes||[];
+    window._labScenes=scenes;
+    if(box)box.innerHTML=scenes.length?scenes.map((sc,i)=>`<span onclick="labApplyScene(${i})" title="${escapeAttr(sc.prompt||'')}" style="cursor:pointer;font-size:11px;border:0.5px solid var(--b-3);border-radius:999px;padding:4px 10px;display:inline-block;margin:0 6px 6px 0;background:#fff;">✨ ${escapeHTML(sc.name)}</span>`).join('')+'<div style="font-size:10px;color:var(--text-3);margin-top:2px;">点击方案自动填入产品描述补充</div>':'<span style="font-size:11px;color:var(--text-3);">未生成方案，换个描述试试</span>';
+  }).catch(err=>{if(box)box.innerHTML=`<span style="font-size:11px;color:var(--warning-text);">${escapeHTML(err.message)}</span>`;});
+}
+function labApplyScene(i){
+  const sc=(window._labScenes||[])[i];if(!sc)return;
+  const ta=document.getElementById('lab-extraDesc');
+  if(ta){ta.value=(ta.value?ta.value+'\n':'')+'【'+sc.name+'】'+(sc.prompt||'');ta.dispatchEvent(new Event('input'));}
 }
 
 function getAgentMeta(key){
